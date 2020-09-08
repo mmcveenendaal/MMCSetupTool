@@ -194,9 +194,12 @@ function Connect-Wifi {
     Write-Host -ForegroundColor Green "Verbonden met MMC_Guest!"
 }
 
+# check the activation status of Windows
 function Get-ActivationStatus {
+    # get the status
     $status = Get-WmiObject SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.LicenseStatus -eq 1 } | Select-Object -Property Description, LicenseStatus
 
+    # check if Windows is active
     if ($status.LicenseStatus -eq 1) {
         Write-Host $status.Description
         Write-Host -ForegroundColor Green "Gefeliciteerd! Windows is geactiveerd."
@@ -205,6 +208,7 @@ function Get-ActivationStatus {
     }
 }
 
+# install the new Edge browser
 function Install-NewEdge {
     $url = "https://go.microsoft.com/fwlink/?linkid=2108834&Channel=Stable&language=nl"
     $file = "$Env:USERPROFILE/Documents/MMC/edge.exe"
@@ -219,20 +223,26 @@ function Install-NewEdge {
     Write-Host -ForegroundColor Green "Hij is geinstalleerd! (Hoop ik...)"
 }
 
+# set the Microsoft products setting in Windows Update
 function Set-MicrosoftUpdateSetting {
+    # the key we need
     $reg = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
 
+    # check if the key exists
     if (-not(Test-Path $reg)) {
         Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
 
+        # create the key
         New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate" -Name "AU" | Out-Null
     }
 
+    # apply the setting
     New-ItemProperty -Path $reg -Name "AllowMUUpdateService" -Value "1" -PropertyType DWORD -Force | Out-Null
 
     Write-Host -ForegroundColor Green "Check!"
 }
 
+# run Windows Update
 function Start-WindowsUpdate {
     # install NuGet
     Install-PackageProvider -Name "Nuget" -Force | Out-Null
@@ -243,10 +253,12 @@ function Start-WindowsUpdate {
     # get all available updates
     $updates = Get-WindowsUpdate -Install -Download
 
+    # check if there are any updates
     if ($updates) {
         Write-Host -ForegroundColor Green "Er zijn updates! Ga ze ff installeren voor je, momentje"
         Write-Host -ForegroundColor Red "LET OP: er wordt automatisch opnieuw opgestart!!"
 
+        # install the updates
         Install-WindowsUpdate -AcceptAll -AutoReboot
     } else {
         Write-Host -ForegroundColor Red "Er zijn geen updates, woohoo!"
