@@ -80,6 +80,7 @@ function Install-Background {
     Write-Host -ForegroundColor Green "Achtergrond is ingesteld!"
 }
 
+# sets the OEM info in the 'info' screen in Settings and on the System page in the Control Panel
 function Set-OEMinfo {
     # this is our logo
     $logo = "assets/mmc.bmp"
@@ -101,12 +102,16 @@ function Set-OEMinfo {
     Write-Host -ForegroundColor Green "OEM info is ingesteld!"
 }
 
+# places some icons on the desktop
 function Install-DesktopIcons {
+    # the base registry key
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
 
+    # check if the key exists
     if (-not(Test-Path $reg)) {
         Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
 
+        # create the needed keys
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "HideDesktopIcons" | Out-Null
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons" -Name "NewStartPanel" | Out-Null
     }
@@ -120,21 +125,26 @@ function Install-DesktopIcons {
     Write-Host -ForegroundColor Green "Snelkoppelingen zijn geplaatst! (ff scherm verversen)"
 }
 
+# set the proper start page of the Explorer
 function Set-ThisPC {
+    # the key we need
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
 
+    # check if the key exists
     if (-not(Test-Path $reg)) {
         Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
 
+        # create the needed key
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "Advanced" | Out-Null
     }
 
-    # This PC
+    # This PC page
     New-ItemProperty -Path $reg -Name "LaunchTo" -Value "1" -PropertyType DWORD -Force | Out-Null
 
     Write-Host -ForegroundColor Green "Startpagina is ingesteld!"
 }
 
+# place instruction PDF on the desktop
 function Install-InstructionPDF {
     # get our files
     $pdf = "assets/instructie.pdf"
@@ -154,6 +164,7 @@ function Install-InstructionPDF {
     Write-Host -ForegroundColor Green "Hij staat erop!"
 }
 
+# place our remote support link as icon on the desktop
 function Install-RemoteSupport {
     # get our icon
     $icon = "assets/support.ico"
@@ -171,9 +182,12 @@ function Install-RemoteSupport {
     Write-Host -ForegroundColor Green "Hij staat erop!"
 }
 
+# connect to our wifi network
 function Connect-Wifi {
+    # get the profile
     $wlanprofile = "assets/mmc_guest.xml"
 
+    # install the profile
     netsh wlan add profile filename=$wlanprofile | Out-Null
     netsh wlan connect name="MMC_Guest" | Out-Null
 
