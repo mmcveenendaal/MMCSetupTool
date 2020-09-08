@@ -1,7 +1,10 @@
+# this script needs Administrator rights, if not, it will stop
 #Requires -RunAsAdministrator
 
+# allow execution of this script, might prompt the user
 Set-ExecutionPolicy RemoteSigned
 
+# gives a user a choice: yes or no?
 function Read-Choice (
    [Parameter(Mandatory)] [string] $Message,
    [Parameter()] [string[]] $Choices = ('&Ja','&Nee'),
@@ -25,6 +28,7 @@ function Read-Choice (
     return $Choices[$decision]
 }
 
+# creates a folder for our assets
 function Set-MMCFolder {
     # this is our desired location
     $loc = "$Env:USERPROFILE/Documents/MMC"
@@ -51,16 +55,17 @@ function Set-MMCFolder {
     New-Item -Path "$Env:USERPROFILE/Documents" -Name "MMC" -ItemType Directory | Out-Null
 }
 
+# sets the background of the user
 function Install-Background {
     # our wallpaper
     $wallpaper = "assets/MMC Background.png"
 
     # create a new directory for our wallpaper
-    New-Item -Path "$Env:windir\Web\Wallpaper" -Name "MMC" -ItemType Directory -ErrorAction Ignore | Out-Null
+    New-Item -Path "$Env:windir\Web\Wallpaper" -Name "MMC" -ItemType Directory | Out-Null
 
     # copy the file
     Copy-Item $wallpaper "$Env:windir\Web\Wallpaper\MMC\"
-    $wallpaper_file = "$Env:windir\Web\Wallpaper\MMC Background.png"
+    $wallpaper_file = "$Env:windir\Web\Wallpaper\MMC\MMC Background.png"
 
     # this is the key we need
     $regBG = "HKCU:\Control Panel\Desktop"
