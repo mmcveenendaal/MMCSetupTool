@@ -1,7 +1,10 @@
+# this script needs Administrator rights, if not, it will stop
 #Requires -RunAsAdministrator
 
+# allow execution of this script, might prompt the user
 Set-ExecutionPolicy RemoteSigned
 
+# gives a user a choice: yes or no?
 function Read-Choice (
    [Parameter(Mandatory)] [string] $Message,
    [Parameter()] [string[]] $Choices = ('&Ja','&Nee'),
@@ -25,6 +28,7 @@ function Read-Choice (
     return $Choices[$decision]
 }
 
+# creates a folder for our assets
 function Set-MMCFolder {
     # this is our desired location
     $loc = "$Env:USERPROFILE/Documents/MMC"
@@ -51,16 +55,17 @@ function Set-MMCFolder {
     New-Item -Path "$Env:USERPROFILE/Documents" -Name "MMC" -ItemType Directory | Out-Null
 }
 
+# sets the background of the user
 function Install-Background {
     # our wallpaper
     $wallpaper = "assets/MMC Background.png"
 
     # create a new directory for our wallpaper
-    New-Item -Path "$Env:windir\Web\Wallpaper" -Name "MMC" -ItemType Directory -ErrorAction Ignore | Out-Null
+    New-Item -Path "$Env:windir\Web\Wallpaper" -Name "MMC" -ItemType Directory | Out-Null
 
     # copy the file
     Copy-Item $wallpaper "$Env:windir\Web\Wallpaper\MMC\"
-    $wallpaper_file = "$Env:windir\Web\Wallpaper\MMC Background.png"
+    $wallpaper_file = "$Env:windir\Web\Wallpaper\MMC\MMC Background.png"
 
     # this is the key we need
     $regBG = "HKCU:\Control Panel\Desktop"
@@ -75,6 +80,7 @@ function Install-Background {
     Write-Host -ForegroundColor Green "Achtergrond is ingesteld!"
 }
 
+# sets the OEM info in the 'info' screen in Settings and on the System page in the Control Panel
 function Set-OEMinfo {
     # this is our logo
     $logo = "assets/mmc.bmp"
@@ -96,12 +102,16 @@ function Set-OEMinfo {
     Write-Host -ForegroundColor Green "OEM info is ingesteld!"
 }
 
+# places some icons on the desktop
 function Install-DesktopIcons {
+    # the base registry key
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
 
+    # check if the key exists
     if (-not(Test-Path $reg)) {
         Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
 
+        # create the needed keys
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "HideDesktopIcons" | Out-Null
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons" -Name "NewStartPanel" | Out-Null
     }
@@ -115,21 +125,26 @@ function Install-DesktopIcons {
     Write-Host -ForegroundColor Green "Snelkoppelingen zijn geplaatst! (ff scherm verversen)"
 }
 
+# set the proper start page of the Explorer
 function Set-ThisPC {
+    # the key we need
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
 
+    # check if the key exists
     if (-not(Test-Path $reg)) {
         Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
 
+        # create the needed key
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "Advanced" | Out-Null
     }
 
-    # This PC
+    # This PC page
     New-ItemProperty -Path $reg -Name "LaunchTo" -Value "1" -PropertyType DWORD -Force | Out-Null
 
     Write-Host -ForegroundColor Green "Startpagina is ingesteld!"
 }
 
+# place instruction PDF on the desktop
 function Install-InstructionPDF {
     # get our files
     $pdf = "assets/instructie.pdf"
@@ -149,6 +164,7 @@ function Install-InstructionPDF {
     Write-Host -ForegroundColor Green "Hij staat erop!"
 }
 
+# place our remote support link as icon on the desktop
 function Install-RemoteSupport {
     # get our icon
     $icon = "assets/support.ico"
@@ -166,18 +182,24 @@ function Install-RemoteSupport {
     Write-Host -ForegroundColor Green "Hij staat erop!"
 }
 
+# connect to our wifi network
 function Connect-Wifi {
+    # get the profile
     $wlanprofile = "assets/mmc_guest.xml"
 
+    # install the profile
     netsh wlan add profile filename=$wlanprofile | Out-Null
     netsh wlan connect name="MMC_Guest" | Out-Null
 
     Write-Host -ForegroundColor Green "Verbonden met MMC_Guest!"
 }
 
+# check the activation status of Windows
 function Get-ActivationStatus {
+    # get the status
     $status = Get-WmiObject SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.LicenseStatus -eq 1 } | Select-Object -Property Description, LicenseStatus
 
+    # check if Windows is active
     if ($status.LicenseStatus -eq 1) {
         Write-Host $status.Description
         Write-Host -ForegroundColor Green "Gefeliciteerd! Windows is geactiveerd."
@@ -186,6 +208,7 @@ function Get-ActivationStatus {
     }
 }
 
+# install the new Edge browser
 function Install-NewEdge {
     $url = "https://go.microsoft.com/fwlink/?linkid=2108834&Channel=Stable&language=nl"
     $file = "$Env:USERPROFILE/Documents/MMC/edge.exe"
@@ -200,20 +223,26 @@ function Install-NewEdge {
     Write-Host -ForegroundColor Green "Hij is geinstalleerd! (Hoop ik...)"
 }
 
+# set the Microsoft products setting in Windows Update
 function Set-MicrosoftUpdateSetting {
+    # the key we need
     $reg = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
 
+    # check if the key exists
     if (-not(Test-Path $reg)) {
         Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
 
+        # create the key
         New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate" -Name "AU" | Out-Null
     }
 
+    # apply the setting
     New-ItemProperty -Path $reg -Name "AllowMUUpdateService" -Value "1" -PropertyType DWORD -Force | Out-Null
 
     Write-Host -ForegroundColor Green "Check!"
 }
 
+# run Windows Update
 function Start-WindowsUpdate {
     # install NuGet
     Install-PackageProvider -Name "Nuget" -Force | Out-Null
@@ -224,10 +253,12 @@ function Start-WindowsUpdate {
     # get all available updates
     $updates = Get-WindowsUpdate -Install -Download
 
+    # check if there are any updates
     if ($updates) {
         Write-Host -ForegroundColor Green "Er zijn updates! Ga ze ff installeren voor je, momentje"
         Write-Host -ForegroundColor Red "LET OP: er wordt automatisch opnieuw opgestart!!"
 
+        # install the updates
         Install-WindowsUpdate -AcceptAll -AutoReboot
     } else {
         Write-Host -ForegroundColor Red "Er zijn geen updates, woohoo!"
