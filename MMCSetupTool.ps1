@@ -1,8 +1,92 @@
+# some global vars
+$version = 1.4
+
 # this script needs Administrator rights, if not, it will stop
 #Requires -RunAsAdministrator
 
 # allow execution of this script, might prompt the user
 Set-ExecutionPolicy RemoteSigned
+
+# set window title
+$Host.UI.RawUI.WindowTitle = "MMC Setup Tool v$version"
+
+function Get-Update {
+    # get the latest release
+    $release = Invoke-WebRequest "https://github.com/matsn0w/MMCSetupTool/releases/latest" -Headers @{ "Accept" = "application/json" }
+    $json = $release.Content | ConvertFrom-Json
+    $latest = $json.tag_name
+
+    # check if there is a newer version
+    if ($latest -gt $version) {
+        Write-Host -ForegroundColor Magenta "Er is een update beschikbaar!`nHuidige versie: $version`nNieuwste versie: $latest"
+
+        $update = Read-Choice -Message "Wil je de tool bijwerken?"
+
+        if ($update -eq "&Ja") {
+            Install-Update
+        }
+    } else {
+        Write-Host -ForegroundColor Green "De tool is up-to-date!"
+    }
+}
+
+# self-update the tool
+function Install-Update {
+    # get the latest release (dynamic url)
+    $url = "https://github.com/matsn0w/MMCSetupTool/releases/latest/download/MMCSetupTool.zip"
+
+    # download the zip
+    Invoke-WebRequest -Uri $url -OutFile "assets/update.zip"
+
+    # extract the zip
+    Expand-Archive -Path "assets/update.zip" -DestinationPath "update"
+
+    # delete the zip
+    Remove-Item -Path "assets/update.zip"
+
+    # rename current exe
+    Rename-Item "MMCSetupTool.exe" -NewName "MMCSetupTool.exe.tmp"
+
+    # delete old stuff
+    Remove-Item ".\assets" -Recurse
+
+    # move new files
+    Get-ChildItem -Path ".\update" | Move-Item -Destination "." -Force
+
+    # delete update folder
+    Remove-Item ".\update" -Recurse
+
+    Write-Host -ForegroundColor Green "De tool is bijgewerkt!"
+
+    # start the new tool
+    Start-Process "MMCSetupTool.exe" -Verb RunAs
+
+    # exit the old tool
+    exit
+}
+
+# check if old exe exists
+function Remove-OldFilesAfterUpdate {
+    $file = "MMCSetupTool.exe.tmp"
+
+    if (Test-Path $file) {
+        # delete the file
+        Remove-Item $file -Force
+    }
+}
+
+# tests the internet connection
+function Test-Internet {
+    # check for connections
+    $status = Get-NetRoute | Where-Object DestinationPrefix -eq '0.0.0.0/0' | Get-NetIPInterface | Where-Object ConnectionState -eq 'Connected'
+
+    if ($status) {
+        return $true
+    }
+
+    Write-Host -ForegroundColor Red "Er is geen internetverbinding!"
+    return $false
+}
 
 # gives a user a choice: yes or no?
 function Read-Choice (
@@ -291,11 +375,30 @@ if (-not(Test-Path -Path "assets/")) {
     exit
 }
 
+if (-not(Test-Internet)) {
+    # CONNECT TO WIFI
+    $connectWifi = Read-Choice -Message "Wil je met de wifi verbinden?"
+
+    if ($connectWifi -eq "&Ja") {
+        Connect-Wifi
+    } else {
+        Write-Host -ForegroundColor Yellow "Draadje dan maar?"
+    }
+}
+
+# REMOVE OLD FILES
+Remove-OldFilesAfterUpdate
+
+# CHECK FOR UPDATES
+if (Test-Internet) {
+    Get-Update
+}
+
 # SET ASSET FOLDER
 Set-MMCFolder
 
 # INSTALL BACKGROUND
-$setupBG = Read-Choice -Message "Wil je de MMC-achtergrond instellen?"
+$setupBG = Read-Choice -Message "`nWil je de MMC-achtergrond instellen?"
 
 if ($setupBG -eq "&Ja") {
     Install-Background
@@ -304,7 +407,7 @@ if ($setupBG -eq "&Ja") {
 }
 
 # SET OEM INFO
-$setOEM = Read-Choice -Message "Wil je de OEM-info instellen?"
+$setOEM = Read-Choice -Message "`nWil je de OEM-info instellen?"
 
 if ($setOEM -eq "&Ja") {
     Set-OEMinfo
@@ -313,7 +416,7 @@ if ($setOEM -eq "&Ja") {
 }
 
 # PLACE ICONS ON DESKTOP
-$setupIcons = Read-Choice -Message "Wil je Deze pc en de gebruikersmap op het bureaublad plaatsen?"
+$setupIcons = Read-Choice -Message "`nWil je Deze pc en de gebruikersmap op het bureaublad plaatsen?"
 
 if ($setupIcons -eq "&Ja") {
     Install-DesktopIcons
@@ -322,7 +425,7 @@ if ($setupIcons -eq "&Ja") {
 }
 
 # SET THIS PC AS START FOLDER
-$setThisPC = Read-Choice -Message "Wil je Deze PC als startpagina instellen in de Verkenner?"
+$setThisPC = Read-Choice -Message "`nWil je Deze PC als startpagina instellen in de Verkenner?"
 
 if ($setThisPC -eq "&Ja") {
     Set-ThisPC
@@ -331,7 +434,7 @@ if ($setThisPC -eq "&Ja") {
 }
 
 # INSTRUCTIEPDF OP BUREAUBLAD
-$placeInstruction = Read-Choice -Message "Wil je de instructie-PDF op het bureaublad plaatsen?"
+$placeInstruction = Read-Choice -Message "`nWil je de instructie-PDF op het bureaublad plaatsen?"
 
 if ($placeInstruction -eq "&Ja") {
     Install-InstructionPDF
@@ -340,7 +443,7 @@ if ($placeInstruction -eq "&Ja") {
 }
 
 # HULP OP AFSTAND LINK OP BUREAUBLAD
-$remoteSupport = Read-Choice -Message "Wil je de Hulp op Afstand-link op het bureaublad plaatsen?"
+$remoteSupport = Read-Choice -Message "`nWil je de Hulp op Afstand-link op het bureaublad plaatsen?"
 
 if ($remoteSupport -eq "&Ja") {
     Install-RemoteSupport
@@ -348,30 +451,25 @@ if ($remoteSupport -eq "&Ja") {
     Write-Host -ForegroundColor Yellow "Dan komen we wel langs ofzo als ze hulp nodig hebben"
 }
 
-# CONNECT TO WIFI
-$connectWifi = Read-Choice -Message "Wil je met de wifi verbinden?"
-
-if ($connectWifi -eq "&Ja") {
-    Connect-Wifi
-} else {
-    Write-Host -ForegroundColor Yellow "Draadje dan maar?"
+# CHECK FOR ACTIVATION
+if (Test-Internet) {
+    Write-Host -ForegroundColor Yellow "`nWe gaan even de activatie van Windoosch checken"
+    Get-ActivationStatus
 }
 
-# CHECK FOR ACTIVATION
-Write-Host -ForegroundColor Yellow "We gaan even de activatie van Windoosch checken"
-Get-ActivationStatus
-
 # INSTALL NEW EDGE
-$installEdge = Read-Choice -Message "Wil je de nieuwe Edge installeren?"
-
-if ($installEdge -eq "&Ja") {
-    Install-NewEdge
-} else {
-    Write-Host -ForegroundColor Yellow "Zit het eindelijk standaard in Windows??"
+if (Test-Internet) {
+    $installEdge = Read-Choice -Message "`nWil je de nieuwe Edge installeren?"
+    
+    if ($installEdge -eq "&Ja") {
+        Install-NewEdge
+    } else {
+        Write-Host -ForegroundColor Yellow "Zit het eindelijk standaard in Windows??"
+    }
 }
 
 # WINDOWS UPDATE SETTING ON
-$setThisPC = Read-Choice -Message "Wil je updates voor Microsoft-producten inschakelen?"
+$setThisPC = Read-Choice -Message "`nWil je updates voor Microsoft-producten inschakelen?"
 
 if ($setThisPC -eq "&Ja") {
     Set-MicrosoftUpdateSetting
@@ -380,17 +478,20 @@ if ($setThisPC -eq "&Ja") {
 }
 
 # RUN WINDOWS UPDATE
-$setThisPC = Read-Choice -Message "Wil je Windows Update draaien?"
-
-if ($setThisPC -eq "&Ja") {
-    Start-WindowsUpdate
-} else {
-    Write-Host -ForegroundColor Yellow "Living on the edge?"
+if (Test-Internet) {
+    $setThisPC = Read-Choice -Message "`nWil je Windows Update draaien?"
+    
+    if ($setThisPC -eq "&Ja") {
+        Start-WindowsUpdate
+    } else {
+        Write-Host -ForegroundColor Yellow "Living on the edge?"
+    }
 }
 
 # time to finish things up
 
 $text = @"
+
 +-----------------------------------------+
 |  ____ ____ ____ ____ ___  _ ____ ____   |
 |  | __ |__/ |  | |___  |   | |___ [__    |
@@ -401,4 +502,10 @@ $text = @"
 
 Write-Host $text -ForegroundColor Yellow
 Write-Host -ForegroundColor Green "`nWe zijn wel zo'n beetje klaar, vergeet je de rest niet te doen??"
-Read-Host -Prompt "Druk op ENTER om het programma te sluiten"
+
+if (-not(Test-Internet)) {
+    Write-Host -ForegroundColor Red "Oh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
+}
+
+# wait for the user to close the program
+Read-Host -Prompt "`nDruk op ENTER om het programma te sluiten"
