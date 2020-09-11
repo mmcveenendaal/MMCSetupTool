@@ -11,3 +11,7 @@ A simple script written in PowerShell to be used when installing new laptops and
 - fixed background function
 - fixed wifi function
 - added more comments
+
+### v1.4
+- added automatic self-update
+- added build tool for executable
