@@ -15,3 +15,4 @@ A simple script written in PowerShell to be used when installing new laptops and
 ### v1.4
 - added automatic self-update
 - added build tool for executable
+- added zipping to build tool
