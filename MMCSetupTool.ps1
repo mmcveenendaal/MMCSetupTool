@@ -4,20 +4,25 @@ $Global:internet = $false
 
 # check for admin rights
 function Test-Administrator  {  
+    Write-Host -ForegroundColor Yellow "Even kijken of je admin bent..."
+
     $user = [Security.Principal.WindowsIdentity]::GetCurrent();
-    (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    $admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+
+    if ($admin) {
+        Write-Host -ForegroundColor Green "`nHelemaal goed!"
+    } else {
+        Write-Host -ForegroundColor Red "`tStart ff als admin jongeh! Zo ken ik toch niks??"
+        Close-Program
+    }
 }
+
+Test-Administrator
 
 # close the program when the user hits ENTER
 function Close-Program {
     Read-Host -Prompt "Druk op ENTER om het programma te sluiten"
     exit
-}
-
-# this script needs Administrator rights, if not, it will stop
-if (-not(Test-Administrator)) {
-    Write-Host -ForegroundColor Red "Ik heb administratorrechten nodig voor dit script!"
-    Close-Program
 }
 
 # allow execution of this script, might prompt the user
@@ -28,6 +33,8 @@ $Host.UI.RawUI.WindowTitle = "MMC Setup Tool v$version"
 
 # get latest tool release
 function Get-Update {
+    Write-Host -ForegroundColor Yellow "Updates ophalen..."
+
     # fix for Internet Explorer 'first run' error
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1
 
@@ -39,19 +46,21 @@ function Get-Update {
     # check if there is a newer version
     if ($latest -gt $version) {
         Write-Host -ForegroundColor Magenta "Er is een update beschikbaar!`nHuidige versie: $version`nNieuwste versie: $latest"
-
+                                               
         $update = Read-Choice -Message "Wil je de tool bijwerken?"
 
         if ($update -eq "&Ja") {
             Install-Update
         }
     } else {
-        Write-Host -ForegroundColor Green "De tool is up-to-date!"
+        Write-Host -ForegroundColor Green "`tDe tool is up-to-date!"
     }
 }
 
 # self-update the tool
 function Install-Update {
+    Write-Host -ForegroundColor Yellow "Update installeren..."
+
     # get the latest release (dynamic url)
     $url = "https://github.com/matsn0w/MMCSetupTool/releases/latest/download/MMCSetupTool.zip"
 
@@ -76,7 +85,7 @@ function Install-Update {
     # delete update folder
     Remove-Item ".\update" -Recurse
 
-    Write-Host -ForegroundColor Green "De tool is bijgewerkt!"
+    Write-Host -ForegroundColor Green "`tDe tool is bijgewerkt!"
 
     # start the new tool
     Start-Process "MMCSetupTool.exe" -Verb RunAs
@@ -97,15 +106,17 @@ function Remove-OldFilesAfterUpdate {
 
 # tests the internet connection
 function Test-Internet {
+    Write-Host -ForegroundColor Yellow "Internetverbinding testen..."
+
     # check for connection
     $status = Test-NetConnection "google.com"
 
     if ($status.PingSucceeded) {
-        Write-Host -ForegroundColor Green "Er is een internetverbinding!"
+        Write-Host -ForegroundColor Green "`tEr is een internetverbinding!"
         return $true
     }
 
-    Write-Host -ForegroundColor Red "Er is geen internetverbinding!"
+    Write-Host -ForegroundColor Red "`tEr is geen internetverbinding!"
     return $false
 }
 
@@ -213,7 +224,6 @@ function Install-Manual {
 
     # CHECK FOR ACTIVATION
     if ($Global:internet) {
-        Write-Host -ForegroundColor Yellow "`nWe gaan even de activatie van Windoosch checken"
         Get-ActivationStatus
     }
 
@@ -245,7 +255,7 @@ function Set-MMCFolder {
 
     # check if the folder already exists
     if ((Test-Path $loc)) {
-        Write-Host -ForegroundColor Red "MMC-map bestaat al! Deze moet je eerst verwijderen voordat je deze tool opnieuw draait."
+        Write-Host -ForegroundColor Red "`tMMC-map bestaat al! Deze moet je eerst verwijderen voordat je deze tool opnieuw draait."
         
         # ask if the user wants to delete the folder
         $delete = Read-Choice -Message "Wil je dat ik de map voor je verwijder?"
@@ -257,7 +267,7 @@ function Set-MMCFolder {
         # delete it
         Remove-Item -Path "$Env:USERPROFILE/Documents/MMC" -Recurse
 
-        Write-Host -ForegroundColor Green "It's gone! We gaan nu verder."
+        Write-Host -ForegroundColor Green "`tIt's gone! We gaan nu verder."
     }
 
     # create the folder
@@ -266,6 +276,8 @@ function Set-MMCFolder {
 
 # sets the OEM info in the 'info' screen in Settings and on the System page in the Control Panel
 function Set-OEMinfo {
+    Write-Host -ForegroundColor Yellow "`nOEM info instellen..."
+
     # this is our logo
     $logo = "assets/mmc.bmp"
 
@@ -283,18 +295,18 @@ function Set-OEMinfo {
     Set-ItemProperty -Path $regOEM -Name SupportHours -Value "09:30 - 17:30"
     Set-ItemProperty -Path $regOEM -Name SupportURL -Value "https://mmcveenendaal.nl"
 
-    Write-Host -ForegroundColor Green "OEM info is ingesteld!"
+    Write-Host -ForegroundColor Green "`tOEM info is ingesteld!"
 }
 
 # places some icons on the desktop
 function Install-DesktopIcons {
+    Write-Host -ForegroundColor Yellow "`nIcoontjes op bureaublad plaatsen..."
+
     # the base registry key
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
 
     # check if the key exists
     if (-not(Test-Path $reg)) {
-        Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
-
         # create the needed keys
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "HideDesktopIcons" | Out-Null
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons" -Name "NewStartPanel" | Out-Null
@@ -306,18 +318,18 @@ function Install-DesktopIcons {
     # User folder
     New-ItemProperty -Path $reg -Name "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Value "0" -PropertyType DWORD -Force | Out-Null
 
-    Write-Host -ForegroundColor Green "Snelkoppelingen zijn geplaatst! (ff scherm verversen)"
+    Write-Host -ForegroundColor Green "`tSnelkoppelingen zijn geplaatst! (mogelijk ff scherm verversen)"
 }
 
 # set the proper start page of the Explorer
 function Set-ThisPC {
+    Write-Host -ForegroundColor Yellow "`nStartpagina van de Verkenner instellen..."
+
     # the key we need
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
 
     # check if the key exists
     if (-not(Test-Path $reg)) {
-        Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
-
         # create the needed key
         New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "Advanced" | Out-Null
     }
@@ -325,11 +337,13 @@ function Set-ThisPC {
     # This PC page
     New-ItemProperty -Path $reg -Name "LaunchTo" -Value "1" -PropertyType DWORD -Force | Out-Null
 
-    Write-Host -ForegroundColor Green "Startpagina is ingesteld!"
+    Write-Host -ForegroundColor Green "`tStartpagina is ingesteld!"
 }
 
 # place instruction PDF on the desktop
 function Install-InstructionPDF {
+    Write-Host -ForegroundColor Yellow "`nInstructie-PDF'je op bureaublad plaatsen..."
+
     # get our files
     $pdf = "assets/instructie.pdf"
     $icon = "assets/info.ico"
@@ -345,11 +359,13 @@ function Install-InstructionPDF {
     $shortcut.IconLocation = "$Env:USERPROFILE/Documents/MMC/info.ico"
     $shortcut.Save()
 
-    Write-Host -ForegroundColor Green "Hij staat erop!"
+    Write-Host -ForegroundColor Green "`tHij staat erop!"
 }
 
 # place our remote support link as icon on the desktop
 function Install-RemoteSupport {
+    Write-Host -ForegroundColor Yellow "`nHulp op Afstand-linkje op bureaublad plaatsen..."
+
     # get our icon
     $icon = "assets/support.ico"
 
@@ -363,11 +379,13 @@ function Install-RemoteSupport {
     $shortcut.IconLocation = "$Env:USERPROFILE/Documents/MMC/support.ico"
     $shortcut.Save()
 
-    Write-Host -ForegroundColor Green "Hij staat erop!"
+    Write-Host -ForegroundColor Green "`tHij staat erop!"
 }
 
 # connect to our wifi network
 function Connect-Wifi {
+    Write-Host -ForegroundColor Yellow "`nMet wifi verbinden..."
+
     # get the profile
     $wlanprofile = "assets/mmc_guest.xml"
 
@@ -375,34 +393,40 @@ function Connect-Wifi {
     netsh wlan add profile filename=$wlanprofile | Out-Null
     netsh wlan connect name="MMC_Guest" | Out-Null
 
-    Write-Host -ForegroundColor Green "Verbonden met MMC_Guest!"
+    Write-Host -ForegroundColor Green "`tVerbonden met MMC_Guest!"
 }
 
 # check the activation status of Windows
 function Get-ActivationStatus {
+    Write-Host -ForegroundColor Yellow "`nWe gaan even kijken of Windoosch is geactiveerd..."
+
     # get the status
     $status = Get-WmiObject SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.LicenseStatus -eq 1 } | Select-Object -Property Description, LicenseStatus
 
     # check if Windows is active
     if ($status.LicenseStatus -eq 1) {
-        Write-Host $status.Description
-        Write-Host -ForegroundColor Green "Gefeliciteerd! Windows is geactiveerd."
+        Write-Host "`t$($status.Description)"
+        Write-Host -ForegroundColor Green "`tGefeliciteerd! Windows is geactiveerd."
     } else {
-        Write-Host -ForegroundColor Red "LET OP: Windows is niet geactiveerd!"
+        Write-Host -ForegroundColor Red "`tLET OP: Windows is niet geactiveerd!"
     }
 }
 
 # set the Microsoft products setting in Windows Update
 function Set-MicrosoftUpdateSetting {
+    Write-Host -ForegroundColor Yellow "`nUpdates voor Microsoft-producten inschakelen..."
+
     $ServiceManager = New-Object -ComObject "Microsoft.Update.ServiceManager"
     $ServiceManager.ClientApplicationID = "MMC Setup Tool"
     $ServiceManager.AddService2("7971f918-a847-4430-9279-4a52d1efe18d",7,"") | Out-Null
 
-    Write-Host -ForegroundColor Green "Check!"
+    Write-Host -ForegroundColor Green "`tCheck!"
 }
 
 # run Windows Update
 function Start-WindowsUpdate {
+    Write-Host -ForegroundColor Yellow "`nWindows Update starten..."
+
     # install NuGet
     Install-PackageProvider -Name "Nuget" -Force | Out-Null
 
@@ -414,13 +438,13 @@ function Start-WindowsUpdate {
 
     # check if there are any updates
     if ($updates) {
-        Write-Host -ForegroundColor Green "Er zijn updates! Ga ze ff installeren voor je, momentje"
-        Write-Host -ForegroundColor Red "LET OP: er wordt automatisch opnieuw opgestart!!"
+        Write-Host -ForegroundColor Green "`tEr zijn updates! Ga ze ff installeren voor je, momentje"
+        Write-Host -ForegroundColor Red "`tLET OP: er wordt automatisch opnieuw opgestart!!"
 
         # install the updates
         Install-WindowsUpdate -AcceptAll -AutoReboot
     } else {
-        Write-Host -ForegroundColor Red "Er zijn geen updates, woohoo!"
+        Write-Host -ForegroundColor Red "`tEr zijn geen updates, woohoo!"
     }
 }
 
@@ -445,7 +469,7 @@ Write-Host -ForegroundColor Yellow $text
 
 # CHECK FOR ASSETS
 if (-not(Test-Path -Path "assets/")) {
-    Write-Host -ForegroundColor Red "Assets ontbreken! Download de tool opnieuw."
+    Write-Host -ForegroundColor Red "`tAssets ontbreken! Download de tool opnieuw."
     Close-Program
 }
 
@@ -501,7 +525,7 @@ Write-Host $text -ForegroundColor Yellow
 Write-Host -ForegroundColor Green "`nWe zijn wel zo'n beetje klaar, vergeet je de rest niet te doen??"
 
 if (-not($Global:internet)) {
-    Write-Host -ForegroundColor Red "Oh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
+    Write-Host -ForegroundColor Red "`tOh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
 }
 
 # wait for the user to close the program
