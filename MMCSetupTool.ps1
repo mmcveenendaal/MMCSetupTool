@@ -1,8 +1,24 @@
 # some global vars
-$version = 1.4
+$version = 1.5
+$Global:internet = $false
+
+# check for admin rights
+function Test-Administrator  {  
+    $user = [Security.Principal.WindowsIdentity]::GetCurrent();
+    (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+}
+
+# close the program when the user hits ENTER
+function Close-Program {
+    Read-Host -Prompt "Druk op ENTER om het programma te sluiten"
+    exit
+}
 
 # this script needs Administrator rights, if not, it will stop
-#Requires -RunAsAdministrator
+if (-not(Test-Administrator)) {
+    Write-Host -ForegroundColor Red "Ik heb administratorrechten nodig voor dit script!"
+    Close-Program
+}
 
 # allow execution of this script, might prompt the user
 Set-ExecutionPolicy RemoteSigned
@@ -10,7 +26,11 @@ Set-ExecutionPolicy RemoteSigned
 # set window title
 $Host.UI.RawUI.WindowTitle = "MMC Setup Tool v$version"
 
+# get latest tool release
 function Get-Update {
+    # fix for Internet Explorer 'first run' error
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1
+
     # get the latest release
     $release = Invoke-WebRequest "https://github.com/matsn0w/MMCSetupTool/releases/latest" -Headers @{ "Accept" = "application/json" }
     $json = $release.Content | ConvertFrom-Json
@@ -77,10 +97,11 @@ function Remove-OldFilesAfterUpdate {
 
 # tests the internet connection
 function Test-Internet {
-    # check for connections
-    $status = Get-NetRoute | Where-Object DestinationPrefix -eq '0.0.0.0/0' | Get-NetIPInterface | Where-Object ConnectionState -eq 'Connected'
+    # check for connection
+    $status = Test-NetConnection "google.com"
 
-    if ($status) {
+    if ($status.PingSucceeded) {
+        Write-Host -ForegroundColor Green "Er is een internetverbinding!"
         return $true
     }
 
@@ -112,6 +133,111 @@ function Read-Choice (
     return $Choices[$decision]
 }
 
+# run all functions automatically
+function Install-Automatic {
+    # SET OEM INFO
+    Set-OEMinfo
+
+    # PLACE ICONS ON DESKTOP
+    Install-DesktopIcons
+
+    # SET THIS PC AS START FOLDER
+    Set-ThisPC
+
+    # PLACE INSTRUCTION PDF ON DESKTOP
+    Install-InstructionPDF
+
+    # PLACE REMOTE SUPPORT ON DESKTOP
+    Install-RemoteSupport
+
+    # CHECK FOR ACTIVATION
+    if ($Global:internet) {
+        Get-ActivationStatus
+    }
+
+    # WINDOWS UPDATE SETTING ON
+    Set-MicrosoftUpdateSetting
+
+    # RUN WINDOWS UPDATE
+    if ($Global:internet) {        
+        Start-WindowsUpdate
+    }    
+}
+
+# run program manual (ask for every function)
+function Install-Manual {
+    # SET OEM INFO
+    $setOEM = Read-Choice -Message "`nWil je de OEM-info instellen?"
+
+    if ($setOEM -eq "&Ja") {
+        Set-OEMinfo
+    } else {
+        Write-Host -ForegroundColor Yellow "Prima, dan niet. Ook best."
+    }
+
+    # PLACE ICONS ON DESKTOP
+    $setupIcons = Read-Choice -Message "`nWil je Deze pc en de gebruikersmap op het bureaublad plaatsen?"
+
+    if ($setupIcons -eq "&Ja") {
+        Install-DesktopIcons
+    } else {
+        Write-Host -ForegroundColor Yellow "Nou, dan niet he!"
+    }
+
+    # SET THIS PC AS START FOLDER
+    $setThisPC = Read-Choice -Message "`nWil je Deze PC als startpagina instellen in de Verkenner?"
+
+    if ($setThisPC -eq "&Ja") {
+        Set-ThisPC
+    } else {
+        Write-Host -ForegroundColor Yellow "Weet waar je aan begint hoor..."
+    }
+
+    # PLACE INSTRUCTION PDF ON DESKTOP
+    $placeInstruction = Read-Choice -Message "`nWil je de instructie-PDF op het bureaublad plaatsen?"
+
+    if ($placeInstruction -eq "&Ja") {
+        Install-InstructionPDF
+    } else {
+        Write-Host -ForegroundColor Yellow "Dan zullen ze er wel verstand van hebben..."
+    }
+
+    # PLACE REMOTE SUPPORT ON DESKTOP
+    $remoteSupport = Read-Choice -Message "`nWil je de Hulp op Afstand-link op het bureaublad plaatsen?"
+
+    if ($remoteSupport -eq "&Ja") {
+        Install-RemoteSupport
+    } else {
+        Write-Host -ForegroundColor Yellow "Dan komen we wel langs ofzo als ze hulp nodig hebben"
+    }
+
+    # CHECK FOR ACTIVATION
+    if ($Global:internet) {
+        Write-Host -ForegroundColor Yellow "`nWe gaan even de activatie van Windoosch checken"
+        Get-ActivationStatus
+    }
+
+    # WINDOWS UPDATE SETTING ON
+    $setThisPC = Read-Choice -Message "`nWil je updates voor Microsoft-producten inschakelen?"
+
+    if ($setThisPC -eq "&Ja") {
+        Set-MicrosoftUpdateSetting
+    } else {
+        Write-Host -ForegroundColor Yellow "Prima."
+    }
+
+    # RUN WINDOWS UPDATE
+    if ($Global:internet) {
+        $setThisPC = Read-Choice -Message "`nWil je Windows Update draaien?"
+        
+        if ($setThisPC -eq "&Ja") {
+            Start-WindowsUpdate
+        } else {
+            Write-Host -ForegroundColor Yellow "Living on the edge?"
+        }
+    }
+}
+
 # creates a folder for our assets
 function Set-MMCFolder {
     # this is our desired location
@@ -125,8 +251,7 @@ function Set-MMCFolder {
         $delete = Read-Choice -Message "Wil je dat ik de map voor je verwijder?"
         
         if ($delete -ne "&Ja") {
-            Read-Host -Prompt "OK, dan moet je het zelf doen. Druk op ENTER om het programma te sluiten"
-            exit
+            Close-Program
         }
 
         # delete it
@@ -137,31 +262,6 @@ function Set-MMCFolder {
 
     # create the folder
     New-Item -Path "$Env:USERPROFILE/Documents" -Name "MMC" -ItemType Directory | Out-Null
-}
-
-# sets the background of the user
-function Install-Background {
-    # our wallpaper
-    $wallpaper = "assets/MMC Background.png"
-
-    # create a new directory for our wallpaper
-    New-Item -Path "$Env:windir\Web\Wallpaper" -Name "MMC" -ItemType Directory | Out-Null
-
-    # copy the file
-    Copy-Item $wallpaper "$Env:windir\Web\Wallpaper\MMC\"
-    $wallpaper_file = "$Env:windir\Web\Wallpaper\MMC\MMC Background.png"
-
-    # this is the key we need
-    $regBG = "HKCU:\Control Panel\Desktop"
-
-    # make registry changes
-    Set-ItemProperty -Path $regBG -Name Wallpaper -Value $wallpaper_file
-    Set-ItemProperty -Path $regBG -Name WallpaperStyle -Value "2"
-
-    # refresh the wallpaper
-    RUNDLL32.EXE USER32.DLL,UpdatePerUserSystemParameters 1, True
-
-    Write-Host -ForegroundColor Green "Achtergrond is ingesteld!"
 }
 
 # sets the OEM info in the 'info' screen in Settings and on the System page in the Control Panel
@@ -292,36 +392,11 @@ function Get-ActivationStatus {
     }
 }
 
-# install the new Edge browser
-function Install-NewEdge {
-    $url = "https://go.microsoft.com/fwlink/?linkid=2108834&Channel=Stable&language=nl"
-    $file = "$Env:USERPROFILE/Documents/MMC/edge.exe"
-
-    # download the installer
-    Invoke-WebRequest -Uri $url -OutFile $file
-
-    # run the installer
-    $proc = Start-Process -FilePath $file -PassThru
-    $proc.WaitForExit()
-
-    Write-Host -ForegroundColor Green "Hij is geinstalleerd! (Hoop ik...)"
-}
-
 # set the Microsoft products setting in Windows Update
 function Set-MicrosoftUpdateSetting {
-    # the key we need
-    $reg = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
-
-    # check if the key exists
-    if (-not(Test-Path $reg)) {
-        Write-Host -ForegroundColor Yellow "Register-entry bestaat nog niet, ff maken"
-
-        # create the key
-        New-Item -Path "HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate" -Name "AU" | Out-Null
-    }
-
-    # apply the setting
-    New-ItemProperty -Path $reg -Name "AllowMUUpdateService" -Value "1" -PropertyType DWORD -Force | Out-Null
+    $ServiceManager = New-Object -ComObject "Microsoft.Update.ServiceManager"
+    $ServiceManager.ClientApplicationID = "MMC Setup Tool"
+    $ServiceManager.AddService2("7971f918-a847-4430-9279-4a52d1efe18d",7,"") | Out-Null
 
     Write-Host -ForegroundColor Green "Check!"
 }
@@ -366,16 +441,18 @@ $text = @"
 +------------------------------------------------------------------------+
 "@
 
-Write-Host $text -ForegroundColor Yellow
+Write-Host -ForegroundColor Yellow $text
 
 # CHECK FOR ASSETS
 if (-not(Test-Path -Path "assets/")) {
-    Write-Host -ForegroundColor Red "Assets ontbreken!"
-    Read-Host -Prompt "Druk op ENTER om het programma te sluiten"
-    exit
+    Write-Host -ForegroundColor Red "Assets ontbreken! Download de tool opnieuw."
+    Close-Program
 }
 
-if (-not(Test-Internet)) {
+# TEST INTERNET CONNECTION
+$Global:internet = Test-Internet
+
+if (-not($Global:internet)) {
     # CONNECT TO WIFI
     $connectWifi = Read-Choice -Message "Wil je met de wifi verbinden?"
 
@@ -390,102 +467,22 @@ if (-not(Test-Internet)) {
 Remove-OldFilesAfterUpdate
 
 # CHECK FOR UPDATES
-if (Test-Internet) {
+if ($Global:internet) {
     Get-Update
 }
 
 # SET ASSET FOLDER
 Set-MMCFolder
 
-# INSTALL BACKGROUND
-$setupBG = Read-Choice -Message "`nWil je de MMC-achtergrond instellen?"
+# ASK FOR INSTALLATION TYPE
+$type = Read-Choice -Message "`nWil je de tool automatisch uitvoeren?"
 
-if ($setupBG -eq "&Ja") {
-    Install-Background
+if ($type -eq "&Ja") {
+    Write-Host -ForegroundColor Yellow "De rest gaat vanzelf, hou je vast!"
+    Install-Automatic
 } else {
-    Write-Host -ForegroundColor Yellow "Jammer... Hij is zo mooi!"
-}
-
-# SET OEM INFO
-$setOEM = Read-Choice -Message "`nWil je de OEM-info instellen?"
-
-if ($setOEM -eq "&Ja") {
-    Set-OEMinfo
-} else {
-    Write-Host -ForegroundColor Yellow "Prima, dan niet. Ook best."
-}
-
-# PLACE ICONS ON DESKTOP
-$setupIcons = Read-Choice -Message "`nWil je Deze pc en de gebruikersmap op het bureaublad plaatsen?"
-
-if ($setupIcons -eq "&Ja") {
-    Install-DesktopIcons
-} else {
-    Write-Host -ForegroundColor Yellow "Nou, dan niet he!"
-}
-
-# SET THIS PC AS START FOLDER
-$setThisPC = Read-Choice -Message "`nWil je Deze PC als startpagina instellen in de Verkenner?"
-
-if ($setThisPC -eq "&Ja") {
-    Set-ThisPC
-} else {
-    Write-Host -ForegroundColor Yellow "Weet waar je aan begint hoor..."
-}
-
-# INSTRUCTIEPDF OP BUREAUBLAD
-$placeInstruction = Read-Choice -Message "`nWil je de instructie-PDF op het bureaublad plaatsen?"
-
-if ($placeInstruction -eq "&Ja") {
-    Install-InstructionPDF
-} else {
-    Write-Host -ForegroundColor Yellow "Dan zullen ze er wel verstand van hebben..."
-}
-
-# HULP OP AFSTAND LINK OP BUREAUBLAD
-$remoteSupport = Read-Choice -Message "`nWil je de Hulp op Afstand-link op het bureaublad plaatsen?"
-
-if ($remoteSupport -eq "&Ja") {
-    Install-RemoteSupport
-} else {
-    Write-Host -ForegroundColor Yellow "Dan komen we wel langs ofzo als ze hulp nodig hebben"
-}
-
-# CHECK FOR ACTIVATION
-if (Test-Internet) {
-    Write-Host -ForegroundColor Yellow "`nWe gaan even de activatie van Windoosch checken"
-    Get-ActivationStatus
-}
-
-# INSTALL NEW EDGE
-if (Test-Internet) {
-    $installEdge = Read-Choice -Message "`nWil je de nieuwe Edge installeren?"
-    
-    if ($installEdge -eq "&Ja") {
-        Install-NewEdge
-    } else {
-        Write-Host -ForegroundColor Yellow "Zit het eindelijk standaard in Windows??"
-    }
-}
-
-# WINDOWS UPDATE SETTING ON
-$setThisPC = Read-Choice -Message "`nWil je updates voor Microsoft-producten inschakelen?"
-
-if ($setThisPC -eq "&Ja") {
-    Set-MicrosoftUpdateSetting
-} else {
-    Write-Host -ForegroundColor Yellow "Prima."
-}
-
-# RUN WINDOWS UPDATE
-if (Test-Internet) {
-    $setThisPC = Read-Choice -Message "`nWil je Windows Update draaien?"
-    
-    if ($setThisPC -eq "&Ja") {
-        Start-WindowsUpdate
-    } else {
-        Write-Host -ForegroundColor Yellow "Living on the edge?"
-    }
+    Write-Host -ForegroundColor Yellow "Je wordt bij elke functie gevraagd wat er moet gebeuren."
+    Install-Manual
 }
 
 # time to finish things up
@@ -503,9 +500,9 @@ $text = @"
 Write-Host $text -ForegroundColor Yellow
 Write-Host -ForegroundColor Green "`nWe zijn wel zo'n beetje klaar, vergeet je de rest niet te doen??"
 
-if (-not(Test-Internet)) {
+if (-not($Global:internet)) {
     Write-Host -ForegroundColor Red "Oh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
 }
 
 # wait for the user to close the program
-Read-Host -Prompt "`nDruk op ENTER om het programma te sluiten"
+Close-Program
