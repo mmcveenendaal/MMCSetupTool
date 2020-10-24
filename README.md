@@ -26,3 +26,4 @@ A simple script written in PowerShell to be used when installing new laptops and
 - improved internet test
 - removed background function
 - removed Edge install (20H2 comes with it pre-installed)
+- included build tool in build script
