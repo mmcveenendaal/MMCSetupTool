@@ -476,6 +476,28 @@ function Start-CheckWindows {
     # OPEN WINDOWS UPDATE
     Write-Host -ForegroundColor Yellow "Ik ben niet zo goed met die updates, dus hou even een oogje in het zeil..."
     Start-Process ms-settings:windowsupdate
+
+    # OPEN MICROSOFT STORE
+    Write-Host -ForegroundColor Yellow "Draai ook eventjes de updates in de Windows Store a.u.b."
+    Start-Process ms-windows-store:updates
+}
+
+function Test-Hardware {
+    if (Get-AppxPackage -Name "Microsoft.Windows.Camera") {
+        Write-Host -ForegroundColor Yellow "We testen even de camera. Lachen!"
+
+        # start the camera app to test the webcam
+        explorer.exe shell:appsFolder\Microsoft.WindowsCamera_8wekyb3d8bbwe!App!microsoft.windows.camera
+    }
+
+    Write-Host -ForegroundColor Yellow "Zou de speaker het doen?"
+    
+    # test the speaker by playing text to speech
+    Add-Type -AssemblyName System.speech
+    $speak = New-Object System.Speech.Synthesis.SpeechSynthesizer
+    $speak.Speak("Hello there, MMC worker! Guess what: the speaker is working. Yay.")
+
+    Write-Host -ForegroundColor Yellow "Ik heb zelf geen idee of 't werkte allemaal, maar dat zoek je zelf maar uit"
 }
 
 $text = @"
@@ -541,6 +563,9 @@ if ($type -eq "&Ja") {
 
 # OPEN WIDNOWS THAT NEED ATTENTION
 Start-CheckWindows
+
+# TEST SOME HARDWARE
+Test-Hardware
 
 # time to finish things up
 
