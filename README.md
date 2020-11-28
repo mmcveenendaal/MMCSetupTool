@@ -27,3 +27,8 @@ A simple script written in PowerShell to be used when installing new laptops and
 - removed background function
 - removed Edge install (20H2 comes with it pre-installed)
 - included build tool in build script
+
+### v1.6
+- added function to set dark theme
+- added automatic opening device manager and Windows Update
+- improved build tool

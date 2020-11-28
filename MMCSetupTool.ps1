@@ -1,5 +1,5 @@
 # some global vars
-$version = 1.5
+$version = 1.6
 $Global:internet = $false
 
 # check for admin rights
@@ -161,6 +161,9 @@ function Install-Automatic {
     # PLACE REMOTE SUPPORT ON DESKTOP
     Install-RemoteSupport
 
+    # SET DARK THEME
+    Set-DarkTheme
+
     # CHECK FOR ACTIVATION
     if ($Global:internet) {
         Get-ActivationStatus
@@ -220,6 +223,15 @@ function Install-Manual {
         Install-RemoteSupport
     } else {
         Write-Host -ForegroundColor Yellow "Dan komen we wel langs ofzo als ze hulp nodig hebben"
+    }
+
+    # SET DARK THEME
+    $darkTheme = Read-Choice -Message "`nWil je het donkere thema instellen?"
+
+    if ($darkTheme -eq "&Ja") {
+        Set-DarkTheme
+    } else {
+        Write-Host -ForegroundColor Yellow "Shine bright like a diamond!"
     }
 
     # CHECK FOR ACTIVATION
@@ -448,6 +460,24 @@ function Start-WindowsUpdate {
     }
 }
 
+function Set-DarkTheme {   
+    # set app theme to dark 
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value "0"
+    
+    # set system theme to dark
+    Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value "0"
+}
+
+function Start-CheckWindows {
+    # OPEN DEVICE MANAGER
+    Write-Host -ForegroundColor Yellow "Controlleer je efskes of alle drivers zijn geïnstalleerd??"
+    Start-Process devmgmt.msc
+
+    # OPEN WINDOWS UPDATE
+    Write-Host -ForegroundColor Yellow "Ik ben niet zo goed met die updates, dus hou even een oogje in het zeil..."
+    Start-Process ms-settings:windowsupdate
+}
+
 $text = @"
 +------------------------------------------------------------------------+
 |             _ _ _ ____ _    _  _ ____ _  _    ___  _  _                |
@@ -508,6 +538,9 @@ if ($type -eq "&Ja") {
     Write-Host -ForegroundColor Yellow "Je wordt bij elke functie gevraagd wat er moet gebeuren."
     Install-Manual
 }
+
+# OPEN WIDNOWS THAT NEED ATTENTION
+Start-CheckWindows
 
 # time to finish things up
 
