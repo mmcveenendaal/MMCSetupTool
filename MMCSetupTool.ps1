@@ -165,7 +165,7 @@ function Install-Automatic {
     Set-DarkTheme
 
     # CHECK FOR ACTIVATION
-    if ($Global:internet) {
+    if ($internet) {
         Get-ActivationStatus
     }
 
@@ -173,7 +173,7 @@ function Install-Automatic {
     Set-MicrosoftUpdateSetting
 
     # RUN WINDOWS UPDATE
-    if ($Global:internet) {        
+    if ($internet) {        
         Start-WindowsUpdate
     }    
 }
@@ -235,7 +235,7 @@ function Install-Manual {
     }
 
     # CHECK FOR ACTIVATION
-    if ($Global:internet) {
+    if ($internet) {
         Get-ActivationStatus
     }
 
@@ -249,7 +249,7 @@ function Install-Manual {
     }
 
     # RUN WINDOWS UPDATE
-    if ($Global:internet) {
+    if ($internet) {
         $setThisPC = Read-Choice -Message "`nWil je Windows Update draaien?"
         
         if ($setThisPC -eq "&Ja") {
@@ -526,9 +526,9 @@ if (-not(Test-Path -Path "assets/")) {
 }
 
 # TEST INTERNET CONNECTION
-$Global:internet = Test-Internet
+$internet = Test-Internet
 
-if (-not($Global:internet)) {
+if (-not($internet)) {
     # CONNECT TO WIFI
     $connectWifi = Read-Choice -Message "Wil je met de wifi verbinden?"
 
@@ -543,7 +543,7 @@ if (-not($Global:internet)) {
 Remove-OldFilesAfterUpdate
 
 # CHECK FOR UPDATES
-if ($Global:internet) {
+if ($internet) {
     Get-Update
 }
 
@@ -582,7 +582,7 @@ $text = @"
 Write-Host $text -ForegroundColor Yellow
 Write-Host -ForegroundColor Green "`nWe zijn wel zo'n beetje klaar, vergeet je de rest niet te doen??"
 
-if (-not($Global:internet)) {
+if (-not($internet)) {
     Write-Host -ForegroundColor Red "`tOh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
 }
 
