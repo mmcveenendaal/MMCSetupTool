@@ -495,7 +495,7 @@ function Test-Hardware {
     # test the speaker by playing text to speech
     Add-Type -AssemblyName System.speech
     $speak = New-Object System.Speech.Synthesis.SpeechSynthesizer
-    $speak.Speak("Hello there, MMC worker! Guess what: the speaker is working. Yay.")
+    $speak.Speak("Hello there, MMC worker! Guess what: the speaker is working. Yay. You may now eat a cookie.")
 
     Write-Host -ForegroundColor Yellow "Ik heb zelf geen idee of 't werkte allemaal, maar dat zoek je zelf maar uit"
 }
