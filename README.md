@@ -40,4 +40,7 @@ A simple script written in PowerShell to be used when installing new laptops and
 - added automatic opening device manager and Windows Update
 - added Windows Store updates
 - added webcam and speakers test
+- added MMC Start link to desktop
 - improved build tool
+- removed instruction PDF
+- removed remote support link
