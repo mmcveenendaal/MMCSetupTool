@@ -17,19 +17,11 @@ function Test-Administrator  {
     }
 }
 
-Test-Administrator
-
 # close the program when the user hits ENTER
 function Close-Program {
     Read-Host -Prompt "Druk op ENTER om het programma te sluiten"
     exit
 }
-
-# allow execution of this script, might prompt the user
-Set-ExecutionPolicy RemoteSigned
-
-# set window title
-$Host.UI.RawUI.WindowTitle = "MMC Setup Tool v$version"
 
 # get latest tool release
 function Get-Update {
@@ -500,6 +492,15 @@ function Test-Hardware {
     Write-Host -ForegroundColor Yellow "Ik heb zelf geen idee of 't werkte allemaal, maar dat zoek je zelf maar uit"
 }
 
+# check if the user has admin rights
+Test-Administrator
+
+# allow execution of this script, might prompt the user
+Set-ExecutionPolicy RemoteSigned
+
+# set window title
+$Host.UI.RawUI.WindowTitle = "MMC Setup Tool v$version"
+
 $text = @"
 +------------------------------------------------------------------------+
 |             _ _ _ ____ _    _  _ ____ _  _    ___  _  _                |
@@ -568,7 +569,6 @@ Start-CheckWindows
 Test-Hardware
 
 # time to finish things up
-
 $text = @"
 
 +-----------------------------------------+
