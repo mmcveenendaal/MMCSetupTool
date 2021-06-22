@@ -1,23 +1,29 @@
 # MMC Setup Tool
+
 A simple script written in PowerShell to be used when installing new laptops and desktops.
 
 [mmcveenendaal.nl](https://mmcveenendaal.nl)
 
 ## Changelog
+
 ### v1.2
+
 - initial release
 
 ### v1.3
+
 - added more comments
 - fixed background function
 - fixed wifi function
 
 ### v1.4
+
 - added automatic self-update
 - added build tool for executable
 - added zipping to build tool
 
 ### v1.5
+
 - added option for automatic installation
 - fixed additional Microsoft Updates setting
 - fixed Internet Explorer 'first run' error
@@ -29,6 +35,9 @@ A simple script written in PowerShell to be used when installing new laptops and
 - included build tool in build script
 
 ### v1.6
+
 - added function to set dark theme
 - added automatic opening device manager and Windows Update
+- added Windows Store updates
+- added webcam and speakers test
 - improved build tool
