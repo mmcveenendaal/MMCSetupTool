@@ -492,6 +492,19 @@ function Test-Hardware {
     Write-Host -ForegroundColor Yellow "Ik heb zelf geen idee of 't werkte allemaal, maar dat zoek je zelf maar uit"
 }
 
+function Update-Store {
+    Write-Host -ForegroundColor Yellow "`nWindows Store updates starten..."
+
+    # start updates
+    Get-CimInstance -Namespace "root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseModernAppManagement_AppManagement01" | 
+    Invoke-CimMethod -MethodName UpdateScanMethod | Out-Null
+
+    # launch Updates page in Windows Store app
+    Start-Process ms-windows-store:updates
+
+    Write-Host -ForegroundColor Green "`tUpdates zijn gestart!"
+}
+
 # check if the user has admin rights
 Test-Administrator
 
@@ -567,6 +580,9 @@ Start-CheckWindows
 
 # TEST SOME HARDWARE
 Test-Hardware
+
+# INSTALL WINDOWS STORE UPDATES
+Update-Store
 
 # time to finish things up
 $text = @"
