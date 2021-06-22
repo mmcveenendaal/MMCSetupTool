@@ -471,6 +471,48 @@ function Update-Store {
     Write-Host -ForegroundColor Green "`tUpdates zijn gestart!"
 }
 
+function Install-Office {
+    function Read-OfficeChoice (
+        [Parameter(Mandatory)] [string] $Message,
+        [Parameter()] [string[]] $Choices = ('Thuisgebruik en &Studenten','Thuisgebruik en &Zelfstandigen', '365 &Personal', '365 &Family'),
+        [Parameter()] [string] $DefaultChoice = 0,
+        [Parameter()] [string] $Question = "Selecteer een versie"
+     ) {
+         $choiceObj = New-Object Collections.ObjectModel.Collection[Management.Automation.Host.ChoiceDescription]
+     
+         foreach ($c in $Choices) {
+             $choiceObj.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList $c, 'test'))
+         }
+     
+         $decision = $Host.UI.PromptForChoice($Message, $Question, $choiceObj, $DefaultChoice)
+     
+         return $decision
+     }
+
+    $version = Read-OfficeChoice -Message "`nWelke versie gaat 't worden?"
+
+    switch ($version) {
+        0 { $type = "HomeStudent2019Retail" }
+        1 { $type = "HomeBusiness2019Retail" }
+        2 { $type = "Personal" } # this doesn't work yet
+        3 { $type = "Family" } # this doesn't work yet
+
+        Default {}
+    }
+
+    $url = "https://c2rsetup.officeapps.live.com/c2r/download.aspx?productReleaseID=$type&platform=x64&language=nl-nl"
+    Invoke-WebRequest -Uri $url -OutFile "Office_Setup.exe"
+
+    Start-Process -FilePath "Office_Setup.exe"
+}
+
+function Install-GDATA {
+    $url = "https://gdata-a.akamaihd.net/Q/WEB/B2C/WEU/GDATA_INTERNETSECURITY_WEB_WEU.exe"
+    Invoke-WebRequest -Uri $url -OutFile "GDATA_Setup.exe"
+
+    Start-Process -FilePath "GDATA_Setup.exe"
+}
+
 # check if the user has admin rights
 Test-Administrator
 
@@ -549,6 +591,24 @@ Test-Hardware
 
 # INSTALL WINDOWS STORE UPDATES
 Update-Store
+
+# INSTALL MICROSOFT OFFICE
+$installOffice = Read-Choice -Message "`nWil je Office installeren?"
+
+if ($installOffice -eq "&Ja") {
+    Install-Office
+} else {
+    Write-Host -ForegroundColor Yellow "Lekker Live Mail gebruiken lol"
+}
+
+# INSTALL G DATA
+$installGDATA = Read-Choice "Wil je G DATA installeren?"
+
+if ($installGDATA -eq "&Ja") {
+    Install-GDATA
+} else {
+    Write-Host -ForegroundColor Yellow "Better safe than sorry..."
+}
 
 # time to finish things up
 $text = @"
