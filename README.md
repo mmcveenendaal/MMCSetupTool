@@ -41,6 +41,8 @@ A simple script written in PowerShell to be used when installing new laptops and
 - added Windows Store updates
 - added webcam and speakers test
 - added MMC Start link to desktop
+- added Microsoft Office installation
+- added G DATA installation
 - improved build tool
 - removed instruction PDF
 - removed remote support link
