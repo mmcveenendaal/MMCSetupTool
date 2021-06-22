@@ -147,11 +147,8 @@ function Install-Automatic {
     # SET THIS PC AS START FOLDER
     Set-ThisPC
 
-    # PLACE INSTRUCTION PDF ON DESKTOP
-    Install-InstructionPDF
-
     # PLACE REMOTE SUPPORT ON DESKTOP
-    Install-RemoteSupport
+    Install-StartpageIcon
 
     # SET DARK THEME
     Set-DarkTheme
@@ -199,22 +196,13 @@ function Install-Manual {
         Write-Host -ForegroundColor Yellow "Weet waar je aan begint hoor..."
     }
 
-    # PLACE INSTRUCTION PDF ON DESKTOP
-    $placeInstruction = Read-Choice -Message "`nWil je de instructie-PDF op het bureaublad plaatsen?"
-
-    if ($placeInstruction -eq "&Ja") {
-        Install-InstructionPDF
-    } else {
-        Write-Host -ForegroundColor Yellow "Dan zullen ze er wel verstand van hebben..."
-    }
-
     # PLACE REMOTE SUPPORT ON DESKTOP
-    $remoteSupport = Read-Choice -Message "`nWil je de Hulp op Afstand-link op het bureaublad plaatsen?"
+    $remoteSupport = Read-Choice -Message "`nWil je de MMC Start-link op het bureaublad plaatsen?"
 
     if ($remoteSupport -eq "&Ja") {
-        Install-RemoteSupport
+        Install-StartpageIcon
     } else {
-        Write-Host -ForegroundColor Yellow "Dan komen we wel langs ofzo als ze hulp nodig hebben"
+        Write-Host -ForegroundColor Yellow "Dan komen we wel langs of zo als ze hulp nodig hebben"
     }
 
     # SET DARK THEME
@@ -344,43 +332,21 @@ function Set-ThisPC {
     Write-Host -ForegroundColor Green "`tStartpagina is ingesteld!"
 }
 
-# place instruction PDF on the desktop
-function Install-InstructionPDF {
-    Write-Host -ForegroundColor Yellow "`nInstructie-PDF'je op bureaublad plaatsen..."
-
-    # get our files
-    $pdf = "assets/instructie.pdf"
-    $icon = "assets/info.ico"
-
-    # copy the files to the assets folder
-    Copy-Item -Path $pdf -Destination "$Env:USERPROFILE/Documents/MMC"
-    Copy-Item -Path $icon -Destination "$Env:USERPROFILE/Documents/MMC"
-
-    # create a shortcut
-    $shell = New-Object -comObject WScript.Shell
-    $shortcut = $shell.CreateShortcut("$Env:USERPROFILE/Desktop/Welkom.lnk")
-    $shortcut.TargetPath = "$Env:USERPROFILE/Documents/MMC/instructie.pdf"
-    $shortcut.IconLocation = "$Env:USERPROFILE/Documents/MMC/info.ico"
-    $shortcut.Save()
-
-    Write-Host -ForegroundColor Green "`tHij staat erop!"
-}
-
 # place our remote support link as icon on the desktop
-function Install-RemoteSupport {
-    Write-Host -ForegroundColor Yellow "`nHulp op Afstand-linkje op bureaublad plaatsen..."
+function Install-StartpageIcon {
+    Write-Host -ForegroundColor Yellow "`nStartpaginalinkje op bureaublad plaatsen..."
 
     # get our icon
-    $icon = "assets/support.ico"
+    $icon = "assets/mmc.ico"
 
     # copy the icon to the assets folder
     Copy-Item -Path $icon -Destination "$Env:USERPROFILE/Documents/MMC"
 
     # create a shortcut
     $shell = New-Object -comObject WScript.Shell
-    $shortcut = $shell.CreateShortcut("$Env:USERPROFILE/Desktop/Hulp op Afstand.lnk")
-    $shortcut.TargetPath = "https://mmcveenendaal.nl/hulp-op-afstand"
-    $shortcut.IconLocation = "$Env:USERPROFILE/Documents/MMC/support.ico"
+    $shortcut = $shell.CreateShortcut("$Env:USERPROFILE/Desktop/MMC Start.lnk")
+    $shortcut.TargetPath = "https://mmcveenendaal.nl/start"
+    $shortcut.IconLocation = "$Env:USERPROFILE/Documents/MMC/mmc.ico"
     $shortcut.Save()
 
     Write-Host -ForegroundColor Green "`tHij staat erop!"
