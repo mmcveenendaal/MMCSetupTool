@@ -44,5 +44,6 @@ A simple script written in PowerShell to be used when installing new laptops and
 - added Microsoft Office installation
 - added G DATA installation
 - improved build tool
+- imporved logging
 - removed instruction PDF
 - removed remote support link
