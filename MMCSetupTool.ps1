@@ -4,13 +4,13 @@ $Global:internet = $false
 
 # check for admin rights
 function Test-Administrator  {  
-    Write-Host -ForegroundColor Yellow "Even kijken of je admin bent..."
+    Write-Host -ForegroundColor Yellow "`nEven kijken of je admin bent..."
 
     $user = [Security.Principal.WindowsIdentity]::GetCurrent();
     $admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 
     if ($admin) {
-        Write-Host -ForegroundColor Green "`nHelemaal goed!"
+        Write-Host -ForegroundColor Green "`tHelemaal goed!"
     } else {
         Write-Host -ForegroundColor Red "`tStart ff als admin jongeh! Zo ken ik toch niks??"
         Close-Program
@@ -19,13 +19,13 @@ function Test-Administrator  {
 
 # close the program when the user hits ENTER
 function Close-Program {
-    Read-Host -Prompt "Druk op ENTER om het programma te sluiten"
+    Read-Host -Prompt "`nDruk op ENTER om het programma te sluiten"
     exit
 }
 
 # get latest tool release
 function Get-Update {
-    Write-Host -ForegroundColor Yellow "Updates ophalen..."
+    Write-Host -ForegroundColor Yellow "`nUpdates ophalen..."
 
     # fix for Internet Explorer 'first run' error
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1
@@ -51,7 +51,7 @@ function Get-Update {
 
 # self-update the tool
 function Install-Update {
-    Write-Host -ForegroundColor Yellow "Update installeren..."
+    Write-Host -ForegroundColor Yellow "`nUpdate installeren..."
 
     # get the latest release (dynamic url)
     $url = "https://github.com/matsn0w/MMCSetupTool/releases/latest/download/MMCSetupTool.zip"
@@ -98,7 +98,7 @@ function Remove-OldFilesAfterUpdate {
 
 # tests the internet connection
 function Test-Internet {
-    Write-Host -ForegroundColor Yellow "Internetverbinding testen..."
+    Write-Host -ForegroundColor Yellow "`nInternetverbinding testen..."
 
     # check for connection
     $status = Test-NetConnection "google.com"
@@ -120,10 +120,6 @@ function Read-Choice (
    [Parameter()] [string] $Question = "Ja of nee?"
 ) {
     $defaultIndex = $Choices.IndexOf($DefaultChoice)
-
-    if ($defaultIndex -lt 0) {
-        throw "$DefaultChoice is geen optie"
-    }
 
     $choiceObj = New-Object Collections.ObjectModel.Collection[Management.Automation.Host.ChoiceDescription]
 
@@ -175,7 +171,7 @@ function Install-Manual {
     if ($setOEM -eq "&Ja") {
         Set-OEMinfo
     } else {
-        Write-Host -ForegroundColor Yellow "Prima, dan niet. Ook best."
+        Write-Host -ForegroundColor Cyan "`tPrima, dan niet. Ook best."
     }
 
     # PLACE ICONS ON DESKTOP
@@ -184,7 +180,7 @@ function Install-Manual {
     if ($setupIcons -eq "&Ja") {
         Install-DesktopIcons
     } else {
-        Write-Host -ForegroundColor Yellow "Nou, dan niet he!"
+        Write-Host -ForegroundColor Cyan "`tNou, dan niet he!"
     }
 
     # SET THIS PC AS START FOLDER
@@ -193,7 +189,7 @@ function Install-Manual {
     if ($setThisPC -eq "&Ja") {
         Set-ThisPC
     } else {
-        Write-Host -ForegroundColor Yellow "Weet waar je aan begint hoor..."
+        Write-Host -ForegroundColor Cyan "`tWeet waar je aan begint hoor..."
     }
 
     # PLACE REMOTE SUPPORT ON DESKTOP
@@ -202,7 +198,7 @@ function Install-Manual {
     if ($remoteSupport -eq "&Ja") {
         Install-StartpageIcon
     } else {
-        Write-Host -ForegroundColor Yellow "Dan komen we wel langs of zo als ze hulp nodig hebben"
+        Write-Host -ForegroundColor Cyan "`tDan komen we wel langs of zo als ze hulp nodig hebben"
     }
 
     # SET DARK THEME
@@ -211,7 +207,7 @@ function Install-Manual {
     if ($darkTheme -eq "&Ja") {
         Set-DarkTheme
     } else {
-        Write-Host -ForegroundColor Yellow "Shine bright like a diamond!"
+        Write-Host -ForegroundColor Cyan "`tShine bright like a diamond!"
     }
 
     # CHECK FOR ACTIVATION
@@ -225,7 +221,7 @@ function Install-Manual {
     if ($setThisPC -eq "&Ja") {
         Set-MicrosoftUpdateSetting
     } else {
-        Write-Host -ForegroundColor Yellow "Prima."
+        Write-Host -ForegroundColor Cyan "`tPrima."
     }
 
     # RUN WINDOWS UPDATE
@@ -235,7 +231,7 @@ function Install-Manual {
         if ($setThisPC -eq "&Ja") {
             Start-WindowsUpdate
         } else {
-            Write-Host -ForegroundColor Yellow "Living on the edge?"
+            Write-Host -ForegroundColor Cyan "`tLiving on the edge?"
         }
     }
 }
@@ -247,19 +243,12 @@ function Set-MMCFolder {
 
     # check if the folder already exists
     if ((Test-Path $loc)) {
-        Write-Host -ForegroundColor Red "`tMMC-map bestaat al! Deze moet je eerst verwijderen voordat je deze tool opnieuw draait."
-        
-        # ask if the user wants to delete the folder
-        $delete = Read-Choice -Message "Wil je dat ik de map voor je verwijder?"
-        
-        if ($delete -ne "&Ja") {
-            Close-Program
-        }
+        Write-Host -ForegroundColor Red "`tMMC-map bestaat al!"
 
         # delete it
         Remove-Item -Path "$Env:USERPROFILE/Documents/MMC" -Recurse
 
-        Write-Host -ForegroundColor Green "`tIt's gone! We gaan nu verder."
+        Write-Host -ForegroundColor Green "`tMap verwijderd! We gaan nu verder. Ik maak 'm opnieuw aan voor je."
     }
 
     # create the folder
@@ -378,7 +367,7 @@ function Get-ActivationStatus {
         Write-Host "`t$($status.Description)"
         Write-Host -ForegroundColor Green "`tGefeliciteerd! Windows is geactiveerd."
     } else {
-        Write-Host -ForegroundColor Red "`tLET OP: Windows is niet geactiveerd!"
+        Write-Host -ForegroundColor Red "`tLET OP: Windows is mogelijk niet geactiveerd!"
     }
 }
 
@@ -409,12 +398,12 @@ function Start-WindowsUpdate {
     # check if there are any updates
     if ($updates) {
         Write-Host -ForegroundColor Green "`tEr zijn updates! Ga ze ff installeren voor je, momentje"
-        Write-Host -ForegroundColor Red "`tLET OP: er wordt automatisch opnieuw opgestart!!"
+        Write-Host -ForegroundColor Green "`tLET OP: er wordt automatisch opnieuw opgestart!!"
 
         # install the updates
         Install-WindowsUpdate -AcceptAll -AutoReboot
     } else {
-        Write-Host -ForegroundColor Red "`tEr zijn geen updates, woohoo!"
+        Write-Host -ForegroundColor Green "`tEr zijn geen updates, woohoo!"
     }
 }
 
@@ -428,34 +417,41 @@ function Set-DarkTheme {
 
 function Start-CheckWindows {
     # OPEN DEVICE MANAGER
-    Write-Host -ForegroundColor Yellow "Controlleer je efskes of alle drivers zijn geïnstalleerd??"
+    Write-Host -ForegroundColor Yellow "`nControleer je efskes of alle drivers zijn geïnstalleerd??"
     Start-Process devmgmt.msc
 
+    Write-Host -ForegroundColor Green "`tDevice Manager is voor je geopend"
+    
     # OPEN WINDOWS UPDATE
-    Write-Host -ForegroundColor Yellow "Ik ben niet zo goed met die updates, dus hou even een oogje in het zeil..."
+    Write-Host -ForegroundColor Yellow "`nIk ben niet zo goed met die updates, dus hou even een oogje in het zeil..."
     Start-Process ms-settings:windowsupdate
-
-    # OPEN MICROSOFT STORE
-    Write-Host -ForegroundColor Yellow "Draai ook eventjes de updates in de Windows Store a.u.b."
-    Start-Process ms-windows-store:updates
+    
+    Write-Host -ForegroundColor Green "`tWindows Update is voor je geopend"
 }
 
 function Test-Hardware {
-    if (Get-AppxPackage -Name "Microsoft.Windows.Camera") {
-        Write-Host -ForegroundColor Yellow "We testen even de camera. Lachen!"
+    Write-Host -ForegroundColor Yellow "`nWe testen even de webcam."
+
+    # check if there is a webcam installed
+    $webcam = Get-CimInstance Win32_PnPEntity | Where-Object -Property PNPClass -eq 'Camera'
+
+    if ($webcam) {
+        Write-Host -ForegroundColor Cyan "`nLachen!"
 
         # start the camera app to test the webcam
-        explorer.exe shell:appsFolder\Microsoft.WindowsCamera_8wekyb3d8bbwe!App!microsoft.windows.camera
+        explorer.exe shell:AppsFolder\Microsoft.WindowsCamera_8wekyb3d8bbwe!App
+    } else {
+        Write-Host -ForegroundColor Cyan "`nGeen webcam gevonden..."
     }
 
-    Write-Host -ForegroundColor Yellow "Zou de speaker het doen?"
+    Write-Host -ForegroundColor Yellow "`nZou de speaker het doen?"
     
-    # test the speaker by playing text to speech
-    Add-Type -AssemblyName System.speech
-    $speak = New-Object System.Speech.Synthesis.SpeechSynthesizer
-    $speak.Speak("Hello there, MMC worker! Guess what: the speaker is working. Yay. You may now eat a cookie.")
+    # test the speaker by playing some music
+    $player = New-Object System.Media.SoundPlayer
+    $player.SoundLocation = (Get-Location).Path + "/assets/audiotest.wav"
+    $player.Play()
 
-    Write-Host -ForegroundColor Yellow "Ik heb zelf geen idee of 't werkte allemaal, maar dat zoek je zelf maar uit"
+    Write-Host -ForegroundColor Green "`tIk heb zelf geen idee of 't werkte allemaal, maar dat zoek je zelf maar uit"
 }
 
 function Update-Store {
@@ -474,7 +470,12 @@ function Update-Store {
 function Install-Office {
     function Read-OfficeChoice (
         [Parameter(Mandatory)] [string] $Message,
-        [Parameter()] [string[]] $Choices = ('Thuisgebruik en &Studenten','Thuisgebruik en &Zelfstandigen', '365 &Personal', '365 &Family'),
+        [Parameter()] [string[]] $Choices = (
+            'Thuisgebruik en &Studenten',
+            'Thuisgebruik en &Zelfstandigen'
+            # '365 &Personal',
+            # '365 &Family'
+        ),
         [Parameter()] [string] $DefaultChoice = 0,
         [Parameter()] [string] $Question = "Selecteer een versie"
      ) {
@@ -494,8 +495,8 @@ function Install-Office {
     switch ($version) {
         0 { $type = "HomeStudent2019Retail" }
         1 { $type = "HomeBusiness2019Retail" }
-        2 { $type = "Personal" } # this doesn't work yet
-        3 { $type = "Family" } # this doesn't work yet
+        # 2 { $type = "Personal" } # this doesn't work yet
+        # 3 { $type = "Family" } # this doesn't work yet
 
         Default {}
     }
@@ -512,12 +513,6 @@ function Install-GDATA {
 
     Start-Process -FilePath "GDATA_Setup.exe"
 }
-
-# check if the user has admin rights
-Test-Administrator
-
-# allow execution of this script, might prompt the user
-Set-ExecutionPolicy RemoteSigned
 
 # set window title
 $Host.UI.RawUI.WindowTitle = "MMC Setup Tool v$version"
@@ -541,6 +536,12 @@ $text = @"
 
 Write-Host -ForegroundColor Yellow $text
 
+# CHECK FOR ADMIN RIGHTS
+Test-Administrator
+
+# ALLOW SCRIPT EXECUTION
+Set-ExecutionPolicy RemoteSigned
+
 # CHECK FOR ASSETS
 if (-not(Test-Path -Path "assets/")) {
     Write-Host -ForegroundColor Red "`tAssets ontbreken! Download de tool opnieuw."
@@ -557,7 +558,7 @@ if (-not($internet)) {
     if ($connectWifi -eq "&Ja") {
         Connect-Wifi
     } else {
-        Write-Host -ForegroundColor Yellow "Draadje dan maar?"
+        Write-Host -ForegroundColor Cyan "`tDraadje dan maar?"
     }
 }
 
@@ -576,10 +577,10 @@ Set-MMCFolder
 $type = Read-Choice -Message "`nWil je de tool automatisch uitvoeren?"
 
 if ($type -eq "&Ja") {
-    Write-Host -ForegroundColor Yellow "De rest gaat vanzelf, hou je vast!"
+    Write-Host -ForegroundColor Yellow "`tDe rest gaat vanzelf, hou je vast!"
     Install-Automatic
 } else {
-    Write-Host -ForegroundColor Yellow "Je wordt bij elke functie gevraagd wat er moet gebeuren."
+    Write-Host -ForegroundColor Yellow "`tJe wordt bij elke functie gevraagd wat er moet gebeuren."
     Install-Manual
 }
 
@@ -598,16 +599,16 @@ $installOffice = Read-Choice -Message "`nWil je Office installeren?"
 if ($installOffice -eq "&Ja") {
     Install-Office
 } else {
-    Write-Host -ForegroundColor Yellow "Lekker Live Mail gebruiken lol"
+    Write-Host -ForegroundColor Cyan "`tLekker Live Mail gebruiken lol"
 }
 
 # INSTALL G DATA
-$installGDATA = Read-Choice "Wil je G DATA installeren?"
+$installGDATA = Read-Choice "`nWil je G DATA installeren?"
 
 if ($installGDATA -eq "&Ja") {
     Install-GDATA
 } else {
-    Write-Host -ForegroundColor Yellow "Better safe than sorry..."
+    Write-Host -ForegroundColor Cyan "`tBetter safe than sorry..."
 }
 
 # time to finish things up
@@ -625,7 +626,7 @@ Write-Host $text -ForegroundColor Yellow
 Write-Host -ForegroundColor Green "`nWe zijn wel zo'n beetje klaar, vergeet je de rest niet te doen??"
 
 if (-not($internet)) {
-    Write-Host -ForegroundColor Red "`tOh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
+    Write-Host -ForegroundColor Cyan "`tOh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
 }
 
 # wait for the user to close the program
