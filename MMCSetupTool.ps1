@@ -473,7 +473,7 @@ function Install-Office {
         [Parameter()] [string[]] $Choices = (
             'Thuisgebruik en &Studenten',
             'Thuisgebruik en &Zelfstandigen'
-            # '365 &Personal',
+            '365 &Personal',
             # '365 &Family'
         ),
         [Parameter()] [string] $DefaultChoice = 0,
@@ -495,7 +495,7 @@ function Install-Office {
     switch ($version) {
         0 { $type = "HomeStudent2019Retail" }
         1 { $type = "HomeBusiness2019Retail" }
-        # 2 { $type = "Personal" } # this doesn't work yet
+        2 { $type = "O365HomePremRetail" }
         # 3 { $type = "Family" } # this doesn't work yet
 
         Default {}
