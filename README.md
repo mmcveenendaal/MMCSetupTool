@@ -47,3 +47,8 @@ A simple script written in PowerShell to be used when installing new laptops and
 - imporved logging
 - removed instruction PDF
 - removed remote support link
+
+### v1.6.1
+
+- added Microsoft 365 Personal / Family installation
+- moved Office and G DATA installers to user's Downloads folder
