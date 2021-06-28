@@ -1,5 +1,5 @@
 # some global vars
-$version = 1.6
+$version = '1.6.1'
 $Global:internet = $false
 
 # check for admin rights
@@ -471,18 +471,17 @@ function Install-Office {
     function Read-OfficeChoice (
         [Parameter(Mandatory)] [string] $Message,
         [Parameter()] [string[]] $Choices = (
-            'Thuisgebruik en &Studenten',
-            'Thuisgebruik en &Zelfstandigen'
-            # '365 &Personal',
-            # '365 &Family'
+            '&Microsoft 365 Personal / Family',
+            'Office 2019 Thuisgebruik en &Studenten',
+            'Office 2019 Thuisgebruik en &Zelfstandigen'
         ),
-        [Parameter()] [string] $DefaultChoice = 0,
+        [Parameter()] [string] $DefaultChoice = 0, # 365
         [Parameter()] [string] $Question = "Selecteer een versie"
      ) {
          $choiceObj = New-Object Collections.ObjectModel.Collection[Management.Automation.Host.ChoiceDescription]
      
          foreach ($c in $Choices) {
-             $choiceObj.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList $c, 'test'))
+             $choiceObj.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList $c))
          }
      
          $decision = $Host.UI.PromptForChoice($Message, $Question, $choiceObj, $DefaultChoice)
@@ -493,25 +492,26 @@ function Install-Office {
     $version = Read-OfficeChoice -Message "`nWelke versie gaat 't worden?"
 
     switch ($version) {
-        0 { $type = "HomeStudent2019Retail" }
-        1 { $type = "HomeBusiness2019Retail" }
-        # 2 { $type = "Personal" } # this doesn't work yet
-        # 3 { $type = "Family" } # this doesn't work yet
+        0 { $type = "O365HomePremRetail" }
+        1 { $type = "HomeStudent2019Retail" }
+        2 { $type = "HomeBusiness2019Retail" }
 
         Default {}
     }
 
     $url = "https://c2rsetup.officeapps.live.com/c2r/download.aspx?productReleaseID=$type&platform=x64&language=nl-nl"
-    Invoke-WebRequest -Uri $url -OutFile "Office_Setup.exe"
+    $out = "$ENV:HOMEPATH/Downloads/Office_Setup.exe"
 
-    Start-Process -FilePath "Office_Setup.exe"
+    Invoke-WebRequest -Uri $url -OutFile $out
+    Start-Process -FilePath $out
 }
 
 function Install-GDATA {
     $url = "https://gdata-a.akamaihd.net/Q/WEB/B2C/WEU/GDATA_INTERNETSECURITY_WEB_WEU.exe"
-    Invoke-WebRequest -Uri $url -OutFile "GDATA_Setup.exe"
+    $out = "$ENV:HOMEPATH/Downloads/GDATA_Setup.exe"
 
-    Start-Process -FilePath "GDATA_Setup.exe"
+    Invoke-WebRequest -Uri $url -OutFile $out
+    Start-Process -FilePath $out
 }
 
 # set window title
