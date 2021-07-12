@@ -398,10 +398,9 @@ function Start-WindowsUpdate {
     # check if there are any updates
     if ($updates) {
         Write-Host -ForegroundColor Green "`tEr zijn updates! Ga ze ff installeren voor je, momentje"
-        Write-Host -ForegroundColor Green "`tLET OP: er wordt automatisch opnieuw opgestart!!"
 
         # install the updates
-        Install-WindowsUpdate -AcceptAll -AutoReboot
+        Install-WindowsUpdate -AcceptAll
     } else {
         Write-Host -ForegroundColor Green "`tEr zijn geen updates, woohoo!"
     }
