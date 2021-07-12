@@ -52,3 +52,8 @@ A simple script written in PowerShell to be used when installing new laptops and
 
 - added Microsoft 365 Personal / Family installation
 - moved Office and G DATA installers to user's Downloads folder
+
+### v1.6.2
+
+- fixed download path for Office and G DATA installation (wrong drive was selected)
+- removed auto reboot from Windows Update function
