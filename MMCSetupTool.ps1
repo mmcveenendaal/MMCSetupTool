@@ -499,7 +499,7 @@ function Install-Office {
     }
 
     $url = "https://c2rsetup.officeapps.live.com/c2r/download.aspx?productReleaseID=$type&platform=x64&language=nl-nl"
-    $out = "$ENV:HOMEPATH/Downloads/Office_Setup.exe"
+    $out = "$env:USERPROFILE/Downloads/Office_Setup.exe"
 
     Invoke-WebRequest -Uri $url -OutFile $out
     Start-Process -FilePath $out
@@ -507,7 +507,7 @@ function Install-Office {
 
 function Install-GDATA {
     $url = "https://gdata-a.akamaihd.net/Q/WEB/B2C/WEU/GDATA_INTERNETSECURITY_WEB_WEU.exe"
-    $out = "$ENV:HOMEPATH/Downloads/GDATA_Setup.exe"
+    $out = "$env:USERPROFILE/Downloads/GDATA_Setup.exe"
 
     Invoke-WebRequest -Uri $url -OutFile $out
     Start-Process -FilePath $out
