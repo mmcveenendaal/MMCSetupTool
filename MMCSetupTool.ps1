@@ -157,10 +157,15 @@ function Install-Automatic {
     # WINDOWS UPDATE SETTING ON
     Set-MicrosoftUpdateSetting
 
+    # INSTALL WINDOWS STORE UPDATES
+    if ($internet) {
+        Update-Store
+    }
+
     # RUN WINDOWS UPDATE
-    if ($internet) {        
+    if ($internet) {
         Start-WindowsUpdate
-    }    
+    }
 }
 
 # run program manual (ask for every function)
@@ -224,11 +229,22 @@ function Install-Manual {
         Write-Host -ForegroundColor Cyan "`tPrima."
     }
 
+    # INSTALL WINDOWS STORE UPDATES
+    if ($internet) {
+        $updateStore = Read-Choice -Message "`nWil je de Windows Store updaten?"
+
+        if ($updateStore -eq "&Ja") {
+            Update-Store
+        } else {
+            Write-Host -ForegroundColor Cyan "`nTja waarom zou je ook"
+        }
+    }
+
     # RUN WINDOWS UPDATE
     if ($internet) {
-        $setThisPC = Read-Choice -Message "`nWil je Windows Update draaien?"
+        $updateWindows = Read-Choice -Message "`nWil je Windows Update draaien?"
         
-        if ($setThisPC -eq "&Ja") {
+        if ($updateWindows -eq "&Ja") {
             Start-WindowsUpdate
         } else {
             Write-Host -ForegroundColor Cyan "`tLiving on the edge?"
@@ -393,14 +409,14 @@ function Start-WindowsUpdate {
     Install-Module PSWindowsUpdate -Force
 
     # get all available updates
-    $updates = Get-WindowsUpdate -Install -Download
+    $updates = Get-WindowsUpdate
 
     # check if there are any updates
     if ($updates) {
         Write-Host -ForegroundColor Green "`tEr zijn updates! Ga ze ff installeren voor je, momentje"
 
         # install the updates
-        Install-WindowsUpdate -AcceptAll
+        $updates | Install-WindowsUpdate -AcceptAll -Download -Install -IgnoreReboot
     } else {
         Write-Host -ForegroundColor Green "`tEr zijn geen updates, woohoo!"
     }
@@ -556,6 +572,8 @@ if (-not($internet)) {
 
     if ($connectWifi -eq "&Ja") {
         Connect-Wifi
+        
+        $internet = Test-Internet
     } else {
         Write-Host -ForegroundColor Cyan "`tDraadje dan maar?"
     }
@@ -588,9 +606,6 @@ Start-CheckWindows
 
 # TEST SOME HARDWARE
 Test-Hardware
-
-# INSTALL WINDOWS STORE UPDATES
-Update-Store
 
 # INSTALL MICROSOFT OFFICE
 $installOffice = Read-Choice -Message "`nWil je Office installeren?"
