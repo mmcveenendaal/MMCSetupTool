@@ -1,5 +1,5 @@
 # some global vars
-$version = '1.6.2'
+$version = '1.6.3'
 $Global:internet = $false
 
 # check for admin rights

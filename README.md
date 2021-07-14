@@ -57,3 +57,8 @@ A simple script written in PowerShell to be used when installing new laptops and
 
 - fixed download path for Office and G DATA installation (wrong drive was selected)
 - removed auto reboot from Windows Update function
+
+### v1.6.3
+
+- moved Windows Updates to end of script
+- improved internet test
