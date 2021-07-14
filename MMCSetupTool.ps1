@@ -161,11 +161,6 @@ function Install-Automatic {
     if ($internet) {
         Update-Store
     }
-
-    # RUN WINDOWS UPDATE
-    if ($internet) {
-        Start-WindowsUpdate
-    }
 }
 
 # run program manual (ask for every function)
@@ -237,17 +232,6 @@ function Install-Manual {
             Update-Store
         } else {
             Write-Host -ForegroundColor Cyan "`nTja waarom zou je ook"
-        }
-    }
-
-    # RUN WINDOWS UPDATE
-    if ($internet) {
-        $updateWindows = Read-Choice -Message "`nWil je Windows Update draaien?"
-        
-        if ($updateWindows -eq "&Ja") {
-            Start-WindowsUpdate
-        } else {
-            Write-Host -ForegroundColor Cyan "`tLiving on the edge?"
         }
     }
 }
@@ -623,6 +607,17 @@ if ($installGDATA -eq "&Ja") {
     Install-GDATA
 } else {
     Write-Host -ForegroundColor Cyan "`tBetter safe than sorry..."
+}
+
+# RUN WINDOWS UPDATE
+if ($internet) {
+    $updateWindows = Read-Choice -Message "`nWil je Windows Update draaien?"
+    
+    if ($updateWindows -eq "&Ja") {
+        Start-WindowsUpdate
+    } else {
+        Write-Host -ForegroundColor Cyan "`tLiving on the edge?"
+    }
 }
 
 # time to finish things up
