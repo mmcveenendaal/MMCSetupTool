@@ -472,7 +472,7 @@ function Install-Office {
         [Parameter()] [string[]] $Choices = (
             '&Microsoft 365 Personal / Family',
             'Office 2021 Thuisgebruik en &Studenten',
-            'Office 2021 Thuisgebruik en &Zelfstandigen',
+            'Office 2021 Thuisgebruik en &Zelfstandigen'
         ),
         [Parameter()] [string] $DefaultChoice = 0, # 365
         [Parameter()] [string] $Question = "Selecteer een versie"
