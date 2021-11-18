@@ -1,5 +1,5 @@
 # some global vars
-$version = '1.6.3'
+$version = '1.6.4'
 $Global:internet = $false
 
 # check for admin rights
@@ -471,8 +471,8 @@ function Install-Office {
         [Parameter(Mandatory)] [string] $Message,
         [Parameter()] [string[]] $Choices = (
             '&Microsoft 365 Personal / Family',
-            'Office 2019 Thuisgebruik en &Studenten',
-            'Office 2019 Thuisgebruik en &Zelfstandigen'
+            'Office 2021 Thuisgebruik en &Studenten',
+            'Office 2021 Thuisgebruik en &Zelfstandigen'
         ),
         [Parameter()] [string] $DefaultChoice = 0, # 365
         [Parameter()] [string] $Question = "Selecteer een versie"
@@ -492,8 +492,8 @@ function Install-Office {
 
     switch ($version) {
         0 { $type = "O365HomePremRetail" }
-        1 { $type = "HomeStudent2019Retail" }
-        2 { $type = "HomeBusiness2019Retail" }
+        1 { $type = "HomeStudent2021Retail" }
+        2 { $type = "HomeBusiness2021Retail" }
 
         Default {}
     }
