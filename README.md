@@ -62,3 +62,7 @@ A simple script written in PowerShell to be used when installing new laptops and
 
 - moved Windows Updates to end of script
 - improved internet test
+
+### v1.6.4
+
+- updated to Office 2021
