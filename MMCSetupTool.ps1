@@ -1,5 +1,5 @@
 # some global vars
-$version = '1.6.1'
+$version = '1.6.4'
 $Global:internet = $false
 
 # check for admin rights
@@ -157,10 +157,10 @@ function Install-Automatic {
     # WINDOWS UPDATE SETTING ON
     Set-MicrosoftUpdateSetting
 
-    # RUN WINDOWS UPDATE
-    if ($internet) {        
-        Start-WindowsUpdate
-    }    
+    # INSTALL WINDOWS STORE UPDATES
+    if ($internet) {
+        Update-Store
+    }
 }
 
 # run program manual (ask for every function)
@@ -224,14 +224,14 @@ function Install-Manual {
         Write-Host -ForegroundColor Cyan "`tPrima."
     }
 
-    # RUN WINDOWS UPDATE
+    # INSTALL WINDOWS STORE UPDATES
     if ($internet) {
-        $setThisPC = Read-Choice -Message "`nWil je Windows Update draaien?"
-        
-        if ($setThisPC -eq "&Ja") {
-            Start-WindowsUpdate
+        $updateStore = Read-Choice -Message "`nWil je de Windows Store updaten?"
+
+        if ($updateStore -eq "&Ja") {
+            Update-Store
         } else {
-            Write-Host -ForegroundColor Cyan "`tLiving on the edge?"
+            Write-Host -ForegroundColor Cyan "`nTja waarom zou je ook"
         }
     }
 }
@@ -393,15 +393,14 @@ function Start-WindowsUpdate {
     Install-Module PSWindowsUpdate -Force
 
     # get all available updates
-    $updates = Get-WindowsUpdate -Install -Download
+    $updates = Get-WindowsUpdate
 
     # check if there are any updates
     if ($updates) {
         Write-Host -ForegroundColor Green "`tEr zijn updates! Ga ze ff installeren voor je, momentje"
-        Write-Host -ForegroundColor Green "`tLET OP: er wordt automatisch opnieuw opgestart!!"
 
         # install the updates
-        Install-WindowsUpdate -AcceptAll -AutoReboot
+        $updates | Install-WindowsUpdate -AcceptAll -Download -Install -IgnoreReboot
     } else {
         Write-Host -ForegroundColor Green "`tEr zijn geen updates, woohoo!"
     }
@@ -472,8 +471,8 @@ function Install-Office {
         [Parameter(Mandatory)] [string] $Message,
         [Parameter()] [string[]] $Choices = (
             '&Microsoft 365 Personal / Family',
-            'Office 2019 Thuisgebruik en &Studenten',
-            'Office 2019 Thuisgebruik en &Zelfstandigen'
+            'Office 2021 Thuisgebruik en &Studenten',
+            'Office 2021 Thuisgebruik en &Zelfstandigen'
         ),
         [Parameter()] [string] $DefaultChoice = 0, # 365
         [Parameter()] [string] $Question = "Selecteer een versie"
@@ -493,14 +492,14 @@ function Install-Office {
 
     switch ($version) {
         0 { $type = "O365HomePremRetail" }
-        1 { $type = "HomeStudent2019Retail" }
-        2 { $type = "HomeBusiness2019Retail" }
+        1 { $type = "HomeStudent2021Retail" }
+        2 { $type = "HomeBusiness2021Retail" }
 
         Default {}
     }
 
     $url = "https://c2rsetup.officeapps.live.com/c2r/download.aspx?productReleaseID=$type&platform=x64&language=nl-nl"
-    $out = "$ENV:HOMEPATH/Downloads/Office_Setup.exe"
+    $out = "$env:USERPROFILE/Downloads/Office_Setup.exe"
 
     Invoke-WebRequest -Uri $url -OutFile $out
     Start-Process -FilePath $out
@@ -508,7 +507,7 @@ function Install-Office {
 
 function Install-GDATA {
     $url = "https://gdata-a.akamaihd.net/Q/WEB/B2C/WEU/GDATA_INTERNETSECURITY_WEB_WEU.exe"
-    $out = "$ENV:HOMEPATH/Downloads/GDATA_Setup.exe"
+    $out = "$env:USERPROFILE/Downloads/GDATA_Setup.exe"
 
     Invoke-WebRequest -Uri $url -OutFile $out
     Start-Process -FilePath $out
@@ -557,6 +556,8 @@ if (-not($internet)) {
 
     if ($connectWifi -eq "&Ja") {
         Connect-Wifi
+        
+        $internet = Test-Internet
     } else {
         Write-Host -ForegroundColor Cyan "`tDraadje dan maar?"
     }
@@ -590,9 +591,6 @@ Start-CheckWindows
 # TEST SOME HARDWARE
 Test-Hardware
 
-# INSTALL WINDOWS STORE UPDATES
-Update-Store
-
 # INSTALL MICROSOFT OFFICE
 $installOffice = Read-Choice -Message "`nWil je Office installeren?"
 
@@ -609,6 +607,17 @@ if ($installGDATA -eq "&Ja") {
     Install-GDATA
 } else {
     Write-Host -ForegroundColor Cyan "`tBetter safe than sorry..."
+}
+
+# RUN WINDOWS UPDATE
+if ($internet) {
+    $updateWindows = Read-Choice -Message "`nWil je Windows Update draaien?"
+    
+    if ($updateWindows -eq "&Ja") {
+        Start-WindowsUpdate
+    } else {
+        Write-Host -ForegroundColor Cyan "`tLiving on the edge?"
+    }
 }
 
 # time to finish things up
