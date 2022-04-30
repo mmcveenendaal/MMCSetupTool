@@ -19,8 +19,10 @@ if (-not(Get-Module ps2exe -ListAvailable)) {
     Install-Module ps2exe
 }
 
+$year = Get-Date -Format "yyyy"
+
 # build executable
-Invoke-PS2EXE -inputFile ".\MMCSetupTool.ps1" -outputFile ".\bin\MMCSetupTool.exe" -iconFile ".\assets\mmc.ico" -title "MMC Setup Tool" -company "Multimedia Center Veenendaal" -copyright "2021 MMC Store BV" -version "$Version" -requireAdmin 
+Invoke-PS2EXE -inputFile ".\MMCSetupTool.ps1" -outputFile ".\bin\MMCSetupTool.exe" -iconFile ".\assets\mmc.ico" -title "MMC Setup Tool" -company "Multimedia Center Veenendaal" -copyright "$year MMC Store BV" -version "$Version" -requireAdmin 
 
 # zip the files
 Compress-Archive -Path ".\bin\MMCSetupTool.exe", ".\assets" -CompressionLevel Fastest -DestinationPath ".\bin\MMCSetupTool.zip"
