@@ -1,4 +1,5 @@
 # some global vars
+$version = '1.6.5'
 $internet = $false
 
 # check for admin rights

@@ -6,6 +6,14 @@ A simple script written in PowerShell to be used when installing new laptops and
 
 ## Changelog
 
+### v1.6.5
+
+- improved internet connection test
+- improved log output color scheme
+- improved build tool
+- updated wifi password
+- updated MMC icon
+
 ### v1.6.4
 
 - updated to Office 2021
