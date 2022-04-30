@@ -1,10 +1,10 @@
 # some global vars
-$version = '1.6.4'
-$Global:internet = $false
+$version = '1.6.5'
+$internet = $false
 
 # check for admin rights
 function Test-Administrator  {  
-    Write-Host -ForegroundColor Yellow "`nEven kijken of je admin bent..."
+    Write-Host -ForegroundColor Cyan "`nEven kijken of je admin bent..."
 
     $user = [Security.Principal.WindowsIdentity]::GetCurrent();
     $admin = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
@@ -25,7 +25,7 @@ function Close-Program {
 
 # get latest tool release
 function Get-Update {
-    Write-Host -ForegroundColor Yellow "`nUpdates ophalen..."
+    Write-Host -ForegroundColor Cyan "`nUpdates ophalen..."
 
     # fix for Internet Explorer 'first run' error
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\Main" -Name "DisableFirstRunCustomize" -Value 1
@@ -51,7 +51,7 @@ function Get-Update {
 
 # self-update the tool
 function Install-Update {
-    Write-Host -ForegroundColor Yellow "`nUpdate installeren..."
+    Write-Host -ForegroundColor Cyan "`nUpdate installeren..."
 
     # get the latest release (dynamic url)
     $url = "https://github.com/matsn0w/MMCSetupTool/releases/latest/download/MMCSetupTool.zip"
@@ -98,18 +98,10 @@ function Remove-OldFilesAfterUpdate {
 
 # tests the internet connection
 function Test-Internet {
-    Write-Host -ForegroundColor Yellow "`nInternetverbinding testen..."
-
     # check for connection
-    $status = Test-NetConnection "google.com"
+    $status = Test-NetConnection
 
-    if ($status.PingSucceeded) {
-        Write-Host -ForegroundColor Green "`tEr is een internetverbinding!"
-        return $true
-    }
-
-    Write-Host -ForegroundColor Red "`tEr is geen internetverbinding!"
-    return $false
+    return $status.PingSucceeded
 }
 
 # gives a user a choice: yes or no?
@@ -152,6 +144,8 @@ function Install-Automatic {
     # CHECK FOR ACTIVATION
     if ($internet) {
         Get-ActivationStatus
+    } else {
+        Write-Host -ForegroundColor Yellow "`nActivatiestatus van Windows wordt niet geverifiëerd."
     }
 
     # WINDOWS UPDATE SETTING ON
@@ -160,6 +154,8 @@ function Install-Automatic {
     # INSTALL WINDOWS STORE UPDATES
     if ($internet) {
         Update-Store
+    } else {
+        Write-Host -ForegroundColor Yellow "`nMicrosoft Store wordt niet bijgewerkt."
     }
 }
 
@@ -171,7 +167,7 @@ function Install-Manual {
     if ($setOEM -eq "&Ja") {
         Set-OEMinfo
     } else {
-        Write-Host -ForegroundColor Cyan "`tPrima, dan niet. Ook best."
+        Write-Host -ForegroundColor Magenta "`tPrima, dan niet. Ook best."
     }
 
     # PLACE ICONS ON DESKTOP
@@ -180,7 +176,7 @@ function Install-Manual {
     if ($setupIcons -eq "&Ja") {
         Install-DesktopIcons
     } else {
-        Write-Host -ForegroundColor Cyan "`tNou, dan niet he!"
+        Write-Host -ForegroundColor Magenta "`tNou, dan niet he!"
     }
 
     # SET THIS PC AS START FOLDER
@@ -189,7 +185,7 @@ function Install-Manual {
     if ($setThisPC -eq "&Ja") {
         Set-ThisPC
     } else {
-        Write-Host -ForegroundColor Cyan "`tWeet waar je aan begint hoor..."
+        Write-Host -ForegroundColor Magenta "`tWeet waar je aan begint hoor..."
     }
 
     # PLACE REMOTE SUPPORT ON DESKTOP
@@ -198,7 +194,7 @@ function Install-Manual {
     if ($remoteSupport -eq "&Ja") {
         Install-StartpageIcon
     } else {
-        Write-Host -ForegroundColor Cyan "`tDan komen we wel langs of zo als ze hulp nodig hebben"
+        Write-Host -ForegroundColor Magenta "`tDan komen we wel langs of zo als ze hulp nodig hebben"
     }
 
     # SET DARK THEME
@@ -207,12 +203,14 @@ function Install-Manual {
     if ($darkTheme -eq "&Ja") {
         Set-DarkTheme
     } else {
-        Write-Host -ForegroundColor Cyan "`tShine bright like a diamond!"
+        Write-Host -ForegroundColor Magenta "`tShine bright like a diamond!"
     }
 
     # CHECK FOR ACTIVATION
     if ($internet) {
         Get-ActivationStatus
+    } else {
+        Write-Host -ForegroundColor Yellow "`nActivatiestatus van Windows wordt niet geverifiëerd."
     }
 
     # WINDOWS UPDATE SETTING ON
@@ -221,7 +219,7 @@ function Install-Manual {
     if ($setThisPC -eq "&Ja") {
         Set-MicrosoftUpdateSetting
     } else {
-        Write-Host -ForegroundColor Cyan "`tPrima."
+        Write-Host -ForegroundColor Magenta "`tPrima."
     }
 
     # INSTALL WINDOWS STORE UPDATES
@@ -231,8 +229,10 @@ function Install-Manual {
         if ($updateStore -eq "&Ja") {
             Update-Store
         } else {
-            Write-Host -ForegroundColor Cyan "`nTja waarom zou je ook"
+            Write-Host -ForegroundColor Magenta "`nTja waarom zou je ook"
         }
+    } else {
+        Write-Host -ForegroundColor Yellow "`nMicrosoft Store wordt niet bijgewerkt."
     }
 }
 
@@ -257,7 +257,7 @@ function Set-MMCFolder {
 
 # sets the OEM info in the 'info' screen in Settings and on the System page in the Control Panel
 function Set-OEMinfo {
-    Write-Host -ForegroundColor Yellow "`nOEM info instellen..."
+    Write-Host -ForegroundColor Cyan "`nOEM info instellen..."
 
     # this is our logo
     $logo = "assets/mmc.bmp"
@@ -281,7 +281,7 @@ function Set-OEMinfo {
 
 # places some icons on the desktop
 function Install-DesktopIcons {
-    Write-Host -ForegroundColor Yellow "`nIcoontjes op bureaublad plaatsen..."
+    Write-Host -ForegroundColor Cyan "`nIcoontjes op bureaublad plaatsen..."
 
     # the base registry key
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
@@ -304,7 +304,7 @@ function Install-DesktopIcons {
 
 # set the proper start page of the Explorer
 function Set-ThisPC {
-    Write-Host -ForegroundColor Yellow "`nStartpagina van de Verkenner instellen..."
+    Write-Host -ForegroundColor Cyan "`nStartpagina van de Verkenner instellen..."
 
     # the key we need
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
@@ -323,7 +323,7 @@ function Set-ThisPC {
 
 # place our remote support link as icon on the desktop
 function Install-StartpageIcon {
-    Write-Host -ForegroundColor Yellow "`nStartpaginalinkje op bureaublad plaatsen..."
+    Write-Host -ForegroundColor Cyan "`nStartpaginalinkje op bureaublad plaatsen..."
 
     # get our icon
     $icon = "assets/mmc.ico"
@@ -343,7 +343,7 @@ function Install-StartpageIcon {
 
 # connect to our wifi network
 function Connect-Wifi {
-    Write-Host -ForegroundColor Yellow "`nMet wifi verbinden..."
+    Write-Host -ForegroundColor Cyan "`nMet wifi verbinden..."
 
     # get the profile
     $wlanprofile = "assets/mmc_guest.xml"
@@ -351,13 +351,11 @@ function Connect-Wifi {
     # install the profile
     netsh wlan add profile filename=$wlanprofile | Out-Null
     netsh wlan connect name="MMC_Guest" | Out-Null
-
-    Write-Host -ForegroundColor Green "`tVerbonden met MMC_Guest!"
 }
 
 # check the activation status of Windows
 function Get-ActivationStatus {
-    Write-Host -ForegroundColor Yellow "`nWe gaan even kijken of Windoosch is geactiveerd..."
+    Write-Host -ForegroundColor Cyan "`nWe gaan even kijken of Windoosch is geactiveerd..."
 
     # get the status
     $status = Get-WmiObject SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.LicenseStatus -eq 1 } | Select-Object -Property Description, LicenseStatus
@@ -373,7 +371,7 @@ function Get-ActivationStatus {
 
 # set the Microsoft products setting in Windows Update
 function Set-MicrosoftUpdateSetting {
-    Write-Host -ForegroundColor Yellow "`nUpdates voor Microsoft-producten inschakelen..."
+    Write-Host -ForegroundColor Cyan "`nUpdates voor Microsoft-producten inschakelen..."
 
     $ServiceManager = New-Object -ComObject "Microsoft.Update.ServiceManager"
     $ServiceManager.ClientApplicationID = "MMC Setup Tool"
@@ -384,7 +382,7 @@ function Set-MicrosoftUpdateSetting {
 
 # run Windows Update
 function Start-WindowsUpdate {
-    Write-Host -ForegroundColor Yellow "`nWindows Update starten..."
+    Write-Host -ForegroundColor Cyan "`nWindows Update starten..."
 
     # install NuGet
     Install-PackageProvider -Name "Nuget" -Force | Out-Null
@@ -416,34 +414,34 @@ function Set-DarkTheme {
 
 function Start-CheckWindows {
     # OPEN DEVICE MANAGER
-    Write-Host -ForegroundColor Yellow "`nControleer je efskes of alle drivers zijn geïnstalleerd??"
+    Write-Host -ForegroundColor Cyan "`nControleer je efskes of alle drivers zijn geïnstalleerd??"
     Start-Process devmgmt.msc
 
     Write-Host -ForegroundColor Green "`tDevice Manager is voor je geopend"
     
     # OPEN WINDOWS UPDATE
-    Write-Host -ForegroundColor Yellow "`nIk ben niet zo goed met die updates, dus hou even een oogje in het zeil..."
+    Write-Host -ForegroundColor Cyan "`nIk ben niet zo goed met die updates, dus hou even een oogje in het zeil..."
     Start-Process ms-settings:windowsupdate
     
     Write-Host -ForegroundColor Green "`tWindows Update is voor je geopend"
 }
 
 function Test-Hardware {
-    Write-Host -ForegroundColor Yellow "`nWe testen even de webcam."
+    Write-Host -ForegroundColor Cyan "`nWe testen even de webcam."
 
     # check if there is a webcam installed
     $webcam = Get-CimInstance Win32_PnPEntity | Where-Object -Property PNPClass -eq 'Camera'
 
     if ($webcam) {
-        Write-Host -ForegroundColor Cyan "`nLachen!"
+        Write-Host -ForegroundColor Magenta "`tLachen!"
 
         # start the camera app to test the webcam
         explorer.exe shell:AppsFolder\Microsoft.WindowsCamera_8wekyb3d8bbwe!App
     } else {
-        Write-Host -ForegroundColor Cyan "`nGeen webcam gevonden..."
+        Write-Host -ForegroundColor Magenta "`tGeen webcam gevonden..."
     }
 
-    Write-Host -ForegroundColor Yellow "`nZou de speaker het doen?"
+    Write-Host -ForegroundColor Cyan "`nZou de speaker het doen?"
     
     # test the speaker by playing some music
     $player = New-Object System.Media.SoundPlayer
@@ -454,7 +452,7 @@ function Test-Hardware {
 }
 
 function Update-Store {
-    Write-Host -ForegroundColor Yellow "`nWindows Store updates starten..."
+    Write-Host -ForegroundColor Cyan "`nWindows Store updates starten..."
 
     # start updates
     Get-CimInstance -Namespace "root\cimv2\mdm\dmmap" -ClassName "MDM_EnterpriseModernAppManagement_AppManagement01" | 
@@ -548,19 +546,36 @@ if (-not(Test-Path -Path "assets/")) {
 }
 
 # TEST INTERNET CONNECTION
+Write-Host -ForegroundColor Cyan "`nInternetverbinding testen..."
+
 $internet = Test-Internet
+
+if ($internet) {
+    Write-Host -ForegroundColor Green "`tEr is een internetverbinding!"
+} else {
+    Write-Host -ForegroundColor Red "`tEr is geen internetverbinding!"
+}
 
 if (-not($internet)) {
     # CONNECT TO WIFI
-    $connectWifi = Read-Choice -Message "Wil je met de wifi verbinden?"
+    $connectWifi = Read-Choice -Message "`nWil je met de wifi verbinden?"
 
     if ($connectWifi -eq "&Ja") {
-        Connect-Wifi
-        
-        $internet = Test-Internet
+        $wifi = Connect-Wifi
+
+        if ($wifi) {
+            Write-Host -ForegroundColor Green "`tVerbonden met MMC_Guest!"
+            $internet = Test-Internet
+        } else {
+            Write-Host -ForegroundColor Red "`tEr ging iets mis... Verbind handmatig met het netwerk."
+        }
     } else {
-        Write-Host -ForegroundColor Cyan "`tDraadje dan maar?"
+        Write-Host -ForegroundColor Magenta "`tDraadje dan maar?"
     }
+}
+
+if (-not($internet)) {
+    Write-Host -ForegroundColor Yellow "`nLET OP: er is geen internetverbinding! De tool kan nu niet alle stappen uitvoeren. Verbind met een netwerk voor een optimale werking van de tool."
 }
 
 # REMOVE OLD FILES
@@ -569,6 +584,8 @@ Remove-OldFilesAfterUpdate
 # CHECK FOR UPDATES
 if ($internet) {
     Get-Update
+} else {
+    Write-Host -ForegroundColor Yellow "`nDe tool wordt niet gecheckt op updates."
 }
 
 # SET ASSET FOLDER
@@ -581,7 +598,7 @@ if ($type -eq "&Ja") {
     Write-Host -ForegroundColor Yellow "`tDe rest gaat vanzelf, hou je vast!"
     Install-Automatic
 } else {
-    Write-Host -ForegroundColor Yellow "`tJe wordt bij elke functie gevraagd wat er moet gebeuren."
+    Write-Host -ForegroundColor Yellow "`tJe wordt bij elke stap gevraagd wat er moet gebeuren."
     Install-Manual
 }
 
@@ -597,7 +614,7 @@ $installOffice = Read-Choice -Message "`nWil je Office installeren?"
 if ($installOffice -eq "&Ja") {
     Install-Office
 } else {
-    Write-Host -ForegroundColor Cyan "`tLekker Live Mail gebruiken lol"
+    Write-Host -ForegroundColor Magenta "`tLekker Live Mail gebruiken lol"
 }
 
 # INSTALL G DATA
@@ -606,7 +623,7 @@ $installGDATA = Read-Choice "`nWil je G DATA installeren?"
 if ($installGDATA -eq "&Ja") {
     Install-GDATA
 } else {
-    Write-Host -ForegroundColor Cyan "`tBetter safe than sorry..."
+    Write-Host -ForegroundColor Magenta "`tBetter safe than sorry..."
 }
 
 # RUN WINDOWS UPDATE
@@ -616,8 +633,10 @@ if ($internet) {
     if ($updateWindows -eq "&Ja") {
         Start-WindowsUpdate
     } else {
-        Write-Host -ForegroundColor Cyan "`tLiving on the edge?"
+        Write-Host -ForegroundColor Magenta "`tLiving on the edge?"
     }
+} else {
+    Write-Host -ForegroundColor Yellow "`nWindows Update wordt niet gedraaid."
 }
 
 # time to finish things up
@@ -633,10 +652,6 @@ $text = @"
 
 Write-Host $text -ForegroundColor Yellow
 Write-Host -ForegroundColor Green "`nWe zijn wel zo'n beetje klaar, vergeet je de rest niet te doen??"
-
-if (-not($internet)) {
-    Write-Host -ForegroundColor Cyan "`tOh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
-}
 
 # wait for the user to close the program
 Close-Program
