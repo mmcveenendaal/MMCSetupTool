@@ -1,6 +1,5 @@
 # some global vars
-$version = '1.6.4'
-$Global:internet = $false
+$internet = $false
 
 # check for admin rights
 function Test-Administrator  {  
@@ -98,18 +97,10 @@ function Remove-OldFilesAfterUpdate {
 
 # tests the internet connection
 function Test-Internet {
-    Write-Host -ForegroundColor Yellow "`nInternetverbinding testen..."
-
     # check for connection
-    $status = Test-NetConnection "google.com"
+    $status = Test-NetConnection
 
-    if ($status.PingSucceeded) {
-        Write-Host -ForegroundColor Green "`tEr is een internetverbinding!"
-        return $true
-    }
-
-    Write-Host -ForegroundColor Red "`tEr is geen internetverbinding!"
-    return $false
+    return $status.PingSucceeded
 }
 
 # gives a user a choice: yes or no?
@@ -548,19 +539,36 @@ if (-not(Test-Path -Path "assets/")) {
 }
 
 # TEST INTERNET CONNECTION
+Write-Host -ForegroundColor Cyan "`nInternetverbinding testen..."
+
 $internet = Test-Internet
+
+if ($internet) {
+    Write-Host -ForegroundColor Green "`tEr is een internetverbinding!"
+} else {
+    Write-Host -ForegroundColor Red "`tEr is geen internetverbinding!"
+}
 
 if (-not($internet)) {
     # CONNECT TO WIFI
-    $connectWifi = Read-Choice -Message "Wil je met de wifi verbinden?"
+    $connectWifi = Read-Choice -Message "`nWil je met de wifi verbinden?"
 
     if ($connectWifi -eq "&Ja") {
-        Connect-Wifi
-        
-        $internet = Test-Internet
+        $wifi = Connect-Wifi
+
+        if ($wifi) {
+            Write-Host -ForegroundColor Green "`tVerbonden met MMC_Guest!"
+            $internet = Test-Internet
+        } else {
+            Write-Host -ForegroundColor Red "`tEr ging iets mis... Verbind handmatig met het netwerk."
+        }
     } else {
-        Write-Host -ForegroundColor Cyan "`tDraadje dan maar?"
+        Write-Host -ForegroundColor Magenta "`tDraadje dan maar?"
     }
+}
+
+if (-not($internet)) {
+    Write-Host -ForegroundColor Yellow "`nLET OP: er is geen internetverbinding! De tool kan nu niet alle stappen uitvoeren. Verbind met een netwerk voor een optimale werking van de tool."
 }
 
 # REMOVE OLD FILES
@@ -569,6 +577,8 @@ Remove-OldFilesAfterUpdate
 # CHECK FOR UPDATES
 if ($internet) {
     Get-Update
+} else {
+    Write-Host -ForegroundColor Yellow "`nDe tool wordt niet gecheckt op updates."
 }
 
 # SET ASSET FOLDER
@@ -633,10 +643,6 @@ $text = @"
 
 Write-Host $text -ForegroundColor Yellow
 Write-Host -ForegroundColor Green "`nWe zijn wel zo'n beetje klaar, vergeet je de rest niet te doen??"
-
-if (-not($internet)) {
-    Write-Host -ForegroundColor Cyan "`tOh ja, er was geen internet dus ik heb niet alles gedaan... Check je dat nog ff?"
-}
 
 # wait for the user to close the program
 Close-Program
