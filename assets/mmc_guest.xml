@@ -19,7 +19,7 @@
 			<sharedKey>
 				<keyType>passPhrase</keyType>
 				<protected>false</protected>
-				<keyMaterial>mmc2018!</keyMaterial>
+				<keyMaterial>mmc3.0!!!</keyMaterial>
 			</sharedKey>
 		</security>
 	</MSM>
