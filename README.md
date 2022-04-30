@@ -6,6 +6,10 @@ A simple script written in PowerShell to be used when installing new laptops and
 
 ## Changelog
 
+### v1.6.6
+
+- improved wifi connection test (it now waits for the connection to set up)
+
 ### v1.6.5
 
 - improved internet connection test
