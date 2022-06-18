@@ -1,5 +1,5 @@
 # some global vars
-$version = '1.6.6'
+$version = '1.7'
 $internet = $false
 
 # check for admin rights
@@ -529,6 +529,13 @@ function Install-GDATA {
     Start-Process -FilePath $out
 }
 
+function Install-AnyDesk {
+    $url = "https://get.anydesk.com/sMUo5Cx4/MMC_Hulp_op_Afstand.exe"
+    $out = "$env:USERPROFILE/Desktop/MMC Hulp op Afstand.exe"
+
+    Invoke-WebRequest -Uri $url -OutFile $out
+}
+
 # set window title
 $Host.UI.RawUI.WindowTitle = "MMC Setup Tool v$version"
 
@@ -625,6 +632,15 @@ Start-CheckWindows
 
 # TEST SOME HARDWARE
 Test-Hardware
+
+# INSTALL ANYDESK
+$installGDATA = Read-Choice "`nWil je MMC Hulp op Afstand (AnyDesk) installeren?"
+
+if ($installGDATA -eq "&Ja") {
+    Install-AnyDesk
+} else {
+    Write-Host -ForegroundColor Magenta "`tDat wordt wat aan de telefoon..."
+}
 
 # INSTALL MICROSOFT OFFICE
 $installOffice = Read-Choice -Message "`nWil je Office installeren?"
