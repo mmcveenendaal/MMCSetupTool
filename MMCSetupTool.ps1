@@ -37,7 +37,7 @@ function Get-Update {
 
     # check if there is a newer version
     if ($latest -gt $version) {
-        Write-Host -ForegroundColor Magenta "Er is een update beschrikbaar! $version => $latest"
+        Write-Host -ForegroundColor Magenta "Er is een update beschikbaar! $version => $latest"
                                                
         $update = Read-Choice -Message "Wil je de Setup Tool bijwerken?"
 
