@@ -259,7 +259,7 @@ function Set-OEMinfo {
     Set-ItemProperty -Path $regOEM -Name Logo -Value $logo_file
     Set-ItemProperty -Path $regOEM -Name Manufacturer -Value "Multimedia Center Veenendaal"
     Set-ItemProperty -Path $regOEM -Name SupportPhone -Value "(+31) 0318 830 220"
-    Set-ItemProperty -Path $regOEM -Name SupportHours -Value "09:30 - 17:30"
+    Set-ItemProperty -Path $regOEM -Name SupportHours -Value "Ma-Do: 09:00-18:00`nVrijdag: 09:00-21:00`nZaterdag: 09:00-17:00"
     Set-ItemProperty -Path $regOEM -Name SupportURL -Value "https://mmcveenendaal.nl"
 
     Write-Host -ForegroundColor Green "`tDe OEM is ingesteld!"
