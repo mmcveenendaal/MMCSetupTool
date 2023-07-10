@@ -98,10 +98,10 @@ function Show-Execute {
 
 function Show-Status {
     $Title = New-Label -Text "Status: " -Style "style=Bold"
-    $Title.Location = New-Object Point(100, 320)
+    $Title.Location = New-Object Point(100, 322)
 
     $Status = New-Label -Text "In afwachting..."
-    $Status.Location = New-Object Point(150, 320)
+    $Status.Location = New-Object Point(150, 322)
 }
 
 Show-Title
