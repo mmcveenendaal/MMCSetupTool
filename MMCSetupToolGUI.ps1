@@ -69,6 +69,8 @@ function Show-InstallationOptions {
         [ListViewItem]::new("Zet DezePC als startpagina in verkenner")
         [ListViewItem]::new("Plaats DezePC en de Gebruiker snelkoppeling op het bureaublad")
         [ListViewItem]::new("Plaats de MMC startpagina snelkoppeling op het bureaublad")
+        [ListViewItem]::new("'mmcveenendaal.nl/start' instellen als startpagina in Edge")
+        [ListViewItem]::new("Google instellen als standaard zoekmachine in Edge")
         [ListViewItem]::new("Voer de Windows Update uit")
         [ListViewItem]::new("Open de Windows Update (controlepunt)")
         [ListViewItem]::new("Voer voor Windows Store update(s) uit")
