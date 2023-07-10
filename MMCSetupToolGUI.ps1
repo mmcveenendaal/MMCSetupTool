@@ -104,7 +104,7 @@ function Show-Status {
     $Title = New-Label -Text "Status: " -Style "style=Bold"
     $Title.Location = New-Object Point(100, 322)
 
-    $Status = New-Label -Text "In afwachting..."
+    $Status = New-Label -Text "Inactief"
     $Status.Location = New-Object Point(150, 322)
 }
 
