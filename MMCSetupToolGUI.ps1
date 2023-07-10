@@ -32,6 +32,10 @@ function Show-Title {
 function Show-Update {
     $UpdateBtn = New-Label -Text "Update beschikbaar!" -Style "style=Bold,Underline"
     $UpdateBtn.Location = New-Object Point(200, 7)
+
+    $UpdateBtn.Add_MouseEnter({
+        $this.Cursor = [Cursors]::Hand
+    })
 }
 
 function Show-AdministratorStatus {
@@ -98,6 +102,10 @@ function Show-Execute {
     $ExecuteBtn = New-Object Button
     $ExecuteBtn.Text = "Uitvoeren"
     $ExecuteBtn.Location = New-Object Point(10, 320)
+
+    $ExecuteBtn.Add_MouseEnter({
+        $this.Cursor = [Cursors]::Hand
+    })
 
     $SetupToolForm.Controls.Add($ExecuteBtn)
 }
