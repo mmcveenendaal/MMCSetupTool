@@ -38,6 +38,7 @@ function Show-AdministratorStatus {
     $Status.Location = New-Object Point(150, 30)
 }
 
+
 function Show-NetworkConnectionStatus {
     $Title = New-Label -Text "Internetverbinding: "
     $Title.Location = New-Object Point(250, 30)
