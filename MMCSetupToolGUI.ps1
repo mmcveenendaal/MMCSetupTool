@@ -29,6 +29,11 @@ function Show-Title {
     New-Label -Text "MMC Setup Tool"-Size 18
 }
 
+function Show-Update {
+    $UpdateBtn = New-Label -Text "Update beschikbaar!" -Style "style=Bold,Underline"
+    $UpdateBtn.Location = New-Object Point(200, 7)
+}
+
 function Show-AdministratorStatus {
     $Title = New-Label -Text "Administratormodus: "
     $Title.Location = New-Object Point(0, 30)
@@ -104,6 +109,7 @@ function Show-Status {
 }
 
 Show-Title
+Show-Update
 Show-AdministratorStatus
 Show-NetworkConnectionStatus
 Show-InstallationOptions
