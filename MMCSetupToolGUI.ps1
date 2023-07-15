@@ -32,11 +32,16 @@ function Show-Title {
     [void](New-Label -Text "MMC Setup Tool"-Size 18)
 }
 
+function Start-Update {
+    # Start update ...
+}
+
 function Show-Update {
     $UpdateBtn = New-Label -Text "Update beschikbaar!" -Style "style=Bold,Underline"
     $UpdateBtn.Location = New-Object Point(200, 7)
 
     $UpdateBtn.Add_MouseEnter{ $this.Cursor = [Cursors]::Hand }
+    $UpdateBtn.Add_Click{ Start-Update }
 }
 
 function Show-AdministratorStatus {
