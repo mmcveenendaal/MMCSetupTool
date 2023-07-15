@@ -3,6 +3,9 @@ using namespace System.Drawing
 
 Add-Type -AssemblyName System.Windows.Forms
 
+# Global variables
+$OptionsView = New-Object ListView
+
 $SetupToolForm = New-Object Form
 $SetupToolForm.ClientSize = "500,350"
 $SetupToolForm.text = "MMC Setup Tool - GUI"
@@ -55,7 +58,6 @@ function Show-NetworkConnectionStatus {
 }
 
 function Show-InstallationOptions {
-    $OptionsView = New-Object ListView
     $OptionsView.Size = New-Object Size(500, 250)
     $OptionsView.Location = New-Object Point(0, 60)
     $OptionsView.CheckBoxes = $true
@@ -105,12 +107,17 @@ function Show-InstallationOptions {
     $SetupToolForm.Controls.Add($OptionsView)
 }
 
+function Start-Execute {
+    # Execute checked option view items ...
+}
+
 function Show-Execute {
     $ExecuteBtn = New-Object Button
     $ExecuteBtn.Text = "Uitvoeren"
     $ExecuteBtn.Location = New-Object Point(10, 320)
 
     $ExecuteBtn.Add_MouseEnter{ $this.Cursor = [Cursors]::Hand }
+    $ExecuteBtn.Add_Click{ Start-Execute }
 
     $SetupToolForm.Controls.Add($ExecuteBtn)
 }
