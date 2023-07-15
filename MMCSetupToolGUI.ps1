@@ -3,6 +3,8 @@ using namespace System.Drawing
 
 Add-Type -AssemblyName System.Windows.Forms
 
+. ".\AdministratorStatus.ps1"
+
 # Global variables
 $OptionsView = New-Object ListView
 
@@ -48,8 +50,14 @@ function Show-AdministratorStatus {
     $Title = New-Label -Text "Administratormodus: "
     $Title.Location = New-Object Point(0, 30)
 
-    $Status = New-Label -Text "Ja"
-    $Status.ForeColor = "Green"
+    if (Test-Administrator) {
+        $Status = New-Label -Text "Ja"
+        $Status.ForeColor = "Green"
+    }
+    else {
+        $Status = New-Label -Text "Nee"
+        $Status.ForeColor = "Red"
+    }
     $Status.Location = New-Object Point(150, 30)
 }
 
