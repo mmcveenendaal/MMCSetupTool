@@ -67,7 +67,7 @@ function Show-InstallationOptions {
     $column = $OptionsView.Columns.Add("Selecteer welke onderdelen van toepassing zijn")
     $column.AutoResize(1)
 
-    $items = @(
+    $defaultItems = @(
         [ListViewItem]::new("Windows activatiestatus controleren")
         [ListViewItem]::new("OEM-Informatie instellen")
         [ListViewItem]::new("Zet DezePC als startpagina in verkenner")
@@ -83,15 +83,22 @@ function Show-InstallationOptions {
         [ListViewItem]::new("Open DeviceManager (controlepunt)")
         [ListViewItem]::new("Test de camera")
         [ListViewItem]::new("Test de speakers")
+        [ListViewItem]::new("Hulp op afstand (Anydesk) installeren")
+    )
+
+    $optionalItems = @(
         [ListViewItem]::new("Microsoft 365 Personal / Family installeren")
         [ListViewItem]::new("Office 2021 Thuisgebruik en Studenten installeren")
         [ListViewItem]::new("Office 2021 Thuisgebruik en Zelfstandigen installeren")
         [ListViewItem]::new("G Data installeren")
-        [ListViewItem]::new("Hulp op afstand (Anydesk) installeren")
     )
 
-    foreach ($item in $items) {
+    foreach ($item in $defaultItems) {
         $item.Checked = $true
+        $OptionsView.Items.Add($item) | Out-Null
+    }
+
+    foreach ($item in $optionalItems) {
         $OptionsView.Items.Add($item) | Out-Null
     }
 
