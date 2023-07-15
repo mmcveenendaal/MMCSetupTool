@@ -3,7 +3,7 @@ using namespace System.Drawing
 
 Add-Type -AssemblyName System.Windows.Forms
 
-. ".\AdministratorStatus.ps1"
+. ".\modules\AdministratorStatus.ps1"
 
 # Global variables
 $OptionsView = New-Object ListView
