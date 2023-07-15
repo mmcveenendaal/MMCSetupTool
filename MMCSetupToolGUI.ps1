@@ -26,16 +26,14 @@ function New-Label {
 }
 
 function Show-Title {
-    New-Label -Text "MMC Setup Tool"-Size 18
+    [void](New-Label -Text "MMC Setup Tool"-Size 18)
 }
 
 function Show-Update {
     $UpdateBtn = New-Label -Text "Update beschikbaar!" -Style "style=Bold,Underline"
     $UpdateBtn.Location = New-Object Point(200, 7)
 
-    $UpdateBtn.Add_MouseEnter({
-        $this.Cursor = [Cursors]::Hand
-    })
+    $UpdateBtn.Add_MouseEnter{ $this.Cursor = [Cursors]::Hand }
 }
 
 function Show-AdministratorStatus {
@@ -68,38 +66,40 @@ function Show-InstallationOptions {
     $column.AutoResize(1)
 
     $defaultItems = @(
-        [ListViewItem]::new("Windows activatiestatus controleren")
-        [ListViewItem]::new("OEM-Informatie instellen")
-        [ListViewItem]::new("Zet DezePC als startpagina in verkenner")
-        [ListViewItem]::new("Plaats DezePC en de Gebruiker snelkoppeling op het bureaublad")
-        [ListViewItem]::new("Plaats de MMC startpagina snelkoppeling op het bureaublad")
-        [ListViewItem]::new("'mmcveenendaal.nl/start' instellen als startpagina in Edge")
-        [ListViewItem]::new("Google instellen als standaard zoekmachine in Edge")
-        [ListViewItem]::new("Voer de Windows Update uit")
-        [ListViewItem]::new("Open de Windows Update (controlepunt)")
-        [ListViewItem]::new("Voer voor Windows Store update(s) uit")
-        [ListViewItem]::new("Open de Windows Store (controlepunt)")
-        [ListViewItem]::new("Updates voor Windows producten inschakelen")
-        [ListViewItem]::new("Open DeviceManager (controlepunt)")
-        [ListViewItem]::new("Test de camera")
-        [ListViewItem]::new("Test de speakers")
-        [ListViewItem]::new("Hulp op afstand (Anydesk) installeren")
+        "Windows activatiestatus controleren"
+        "OEM-Informatie instellen"
+        "Zet DezePC als startpagina in verkenner"
+        "Plaats DezePC en de Gebruiker snelkoppeling op het bureaublad"
+        "Plaats de MMC startpagina snelkoppeling op het bureaublad"
+        "'mmcveenendaal.nl/start' instellen als startpagina in Edge"
+        "Google instellen als standaard zoekmachine in Edge"
+        "Voer de Windows Update uit"
+        "Open de Windows Update (controlepunt)"
+        "Voer voor Windows Store update(s) uit"
+        "Open de Windows Store (controlepunt)"
+        "Updates voor Windows producten inschakelen"
+        "Open DeviceManager (controlepunt)"
+        "Test de camera"
+        "Test de speakers"
+        "Hulp op afstand (Anydesk) installeren"
     )
 
     $optionalItems = @(
-        [ListViewItem]::new("Microsoft 365 Personal / Family installeren")
-        [ListViewItem]::new("Office 2021 Thuisgebruik en Studenten installeren")
-        [ListViewItem]::new("Office 2021 Thuisgebruik en Zelfstandigen installeren")
-        [ListViewItem]::new("G Data installeren")
+        "Microsoft 365 Personal / Family installeren"
+        "Office 2021 Thuisgebruik en Studenten installeren"
+        "Office 2021 Thuisgebruik en Zelfstandigen installeren"
+        "G Data installeren"
     )
 
-    foreach ($item in $defaultItems) {
+    $defaultItems | ForEach-Object {
+        $item = [ListViewItem]::new($_)
         $item.Checked = $true
-        $OptionsView.Items.Add($item) | Out-Null
+        [void]$OptionsView.Items.Add($item)
     }
 
-    foreach ($item in $optionalItems) {
-        $OptionsView.Items.Add($item) | Out-Null
+    $optionalItems | ForEach-Object {
+        $item = [ListViewItem]::new($_)
+        [void]$OptionsView.Items.Add($item)
     }
 
     $SetupToolForm.Controls.Add($OptionsView)
@@ -110,9 +110,7 @@ function Show-Execute {
     $ExecuteBtn.Text = "Uitvoeren"
     $ExecuteBtn.Location = New-Object Point(10, 320)
 
-    $ExecuteBtn.Add_MouseEnter({
-        $this.Cursor = [Cursors]::Hand
-    })
+    $ExecuteBtn.Add_MouseEnter{ $this.Cursor = [Cursors]::Hand }
 
     $SetupToolForm.Controls.Add($ExecuteBtn)
 }
