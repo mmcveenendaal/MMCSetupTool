@@ -4,6 +4,7 @@ using namespace System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
 
 . ".\modules\AdministratorStatus.ps1"
+. ".\modules\InternetConnection.ps1"
 
 # Global variables
 $OptionsView = New-Object ListView
@@ -65,9 +66,20 @@ function Show-NetworkConnectionStatus {
     $Title = New-Label -Text "Internetverbinding: "
     $Title.Location = New-Object Point(250, 30)
 
-    $Status = New-Label -Text "Ja"
-    $Status.ForeColor = "Green"
+    $Status = New-Label -Text "Pinging..."
     $Status.Location = New-Object Point(385, 30)
+    $Status.ForeColor = "Orange"
+
+    $hasInternet = Test-Internet
+
+    if ($hasInternet) {
+        $Status.Text = "Ja"
+        $Status.ForeColor = "Green"
+    }
+    else {
+        $Status.Text = "Nee"
+        $Status.ForeColor = "Red"
+    }
 }
 
 function Show-InstallationOptions {
