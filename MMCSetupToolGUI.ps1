@@ -9,6 +9,30 @@ Add-Type -AssemblyName System.Windows.Forms
 # Global variables
 $OptionsView = New-Object ListView
 
+enum ActionNames {
+    Activeren = 1
+    OEMInstelling = 2
+    Startpagina = 3
+    Snelkoppelingen = 4
+    MMCSnelkoppeling = 5
+    EdgeStartpagina = 6
+    Standaardzoekmachine = 7
+    Updaten = 8
+    UpdateControlepunt = 9
+    StoreUpdates = 10
+    StoreControlepunt = 11
+    UpdateInschakelen = 12
+    DeviceManager = 13
+    CameraTest = 14
+    SpeakerTest = 15
+    AnydeskInstallatie = 16
+    Office365Installeren = 17
+    OfficeStudenten2021Installeren = 18
+    OfficeZelfstandigen2021Installeren = 19
+    GDataInstalleren = 20
+}
+$actionItems = @()
+
 $SetupToolForm = New-Object Form
 $SetupToolForm.ClientSize = "500,350"
 $SetupToolForm.text = "MMC Setup Tool - GUI"
@@ -133,7 +157,41 @@ function Show-InstallationOptions {
 }
 
 function Start-Execute {
-    # Execute checked option view items ...
+    foreach ($item in $OptionsView.CheckedItems) {
+        Start-Action -ActionId $item.Index
+    }
+}
+
+function Start-Action {
+    Param(
+        [Parameter(Mandatory)][int]$ActionId
+    )
+
+    $actionName = [Enum]::ToObject([ActionNames], $ActionId)
+
+    switch ($actionName) {
+        ([ActionNames]::Activeren) {  }
+        ([ActionNames]::OEMInstelling) {  }
+        ([ActionNames]::Startpagina) {  }
+        ([ActionNames]::Snelkoppelingen) {  }
+        ([ActionNames]::MMCSnelkoppeling) {  }
+        ([ActionNames]::EdgeStartpagina) {  }
+        ([ActionNames]::Standaardzoekmachine) {  }
+        ([ActionNames]::Updaten) {  }
+        ([ActionNames]::UpdateControlepunt) {  }
+        ([ActionNames]::StoreUpdates) {  }
+        ([ActionNames]::StoreControlepunt) {  }
+        ([ActionNames]::UpdateInschakelen) {  }
+        ([ActionNames]::DeviceManager) {  }
+        ([ActionNames]::CameraTest) {  }
+        ([ActionNames]::SpeakerTest) {  }
+        ([ActionNames]::AnydeskInstallatie) {  }
+        ([ActionNames]::Office365Installeren) {  }
+        ([ActionNames]::OfficeStudenten2021Installeren) {  }
+        ([ActionNames]::OfficeZelfstandigen2021Installeren) {  }
+        ([ActionNames]::GDataInstalleren) {  }
+        Default {}
+    }
 }
 
 function Show-Execute {
